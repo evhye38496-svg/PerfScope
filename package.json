@@ -2,15 +2,39 @@
   "name": "turbo-vscode",
   "displayName": "One-Click Turbo",
   "description": "VS Code performance health scanner and optimization guide.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "publisher": "Evhye",
   "license": "MIT",
   "private": true,
+  "preview": true,
+  "icon": "resources/turbo-128.png",
+  "repository": {
+    "type": "git",
+    "url": "https://example.com/replace-with-one-click-turbo-repository.git"
+  },
+  "bugs": {
+    "url": "https://example.com/replace-with-one-click-turbo-issues"
+  },
+  "homepage": "https://example.com/replace-with-one-click-turbo-homepage",
+  "keywords": [
+    "performance",
+    "optimization",
+    "scanner",
+    "dashboard",
+    "workspace",
+    "extensions",
+    "audit"
+  ],
+  "galleryBanner": {
+    "color": "#1f6feb",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
   ],
   "main": "./out/src/extension.js",
   "extensionKind": [
@@ -91,7 +115,10 @@
     "test": "npm run test:unit",
     "test:unit": "npm run compile && node --test \"out/test/unit/*.test.js\"",
     "test:vscode": "npm run compile && node ./out/test/vscode/runTest.js",
-    "package": "npm run compile"
+    "vscode:prepublish": "npm run compile",
+    "package": "npm run compile",
+    "package:vsix": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/turbo-vscode-0.8.0.vsix",
+    "verify:release": "npm run compile && npm test && npm run test:vscode && npm run package:vsix"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1"
@@ -100,6 +127,7 @@
     "@types/node": "^20.19.0",
     "@types/vscode": "^1.90.0",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.2.2",
     "typescript": "^5.9.3"
   }
 }

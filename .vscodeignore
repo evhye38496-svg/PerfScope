@@ -1,9 +1,11 @@
 .git/**
 .vscode/**
 .vscode-test/**
+dist/**
 src/**
 test/**
-*.map
+out/test/**
+**/*.map
 tsconfig.json
 package-lock.json
 npm-debug.log*

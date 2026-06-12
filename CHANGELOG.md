@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0
+
+- Prepared V0.8 as a VSIX beta release.
+- Added Marketplace preview metadata, keywords, gallery banner, and placeholder project links.
+- Added VSIX packaging scripts and release verification workflow.
+- Added MIT `LICENSE` and `SUPPORT.md`.
+- Added a PNG Marketplace icon while keeping the SVG Activity Bar icon.
+- Expanded README with VSIX install steps, safety boundaries, known beta limits, and a release checklist.
+
 ## 0.7.0
 
 - Polished the Side Bar and full Dashboard with a lightweight launcher-style UI.
