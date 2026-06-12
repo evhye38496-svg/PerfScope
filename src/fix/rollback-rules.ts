@@ -15,3 +15,10 @@ export function createRemainingChangeLog(changeLog: ChangeLog, entries: readonly
     entries: [...entries]
   };
 }
+
+export function canRollbackEntryInScope(entry: ChangeLogEntry, availableWorkspaceFolderUris: readonly string[]): boolean {
+  return entry.target !== 'workspaceFolder' || (
+    typeof entry.workspaceFolderUri === 'string' &&
+    availableWorkspaceFolderUris.includes(entry.workspaceFolderUri)
+  );
+}

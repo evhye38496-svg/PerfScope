@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { exportReportCommand } from './commands/export-report';
 import { applySafeFixesCommand, undoLastFixCommand } from './commands/fix';
+import { purgeCommand } from './commands/purge';
 import { quickAuditCommand, runFullScanCommand } from './commands/scan';
 import { TurboState } from './state/turbo-state';
 import { TurboDashboard } from './ui/dashboard';
@@ -87,9 +88,22 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       })
     ),
-    vscode.commands.registerCommand('turbo.purge', () => {
-      void vscode.window.showInformationMessage('Turbo: Purge is planned for a later milestone.');
-    })
+    vscode.commands.registerCommand('turbo.purge', () =>
+      purgeCommand({
+        context,
+        notifier,
+        statusBar,
+        hasUiState() {
+          return state.hasData();
+        },
+        clearUiState() {
+          state.clear();
+        },
+        recordOperation(operation) {
+          state.setLastOperation(operation);
+        }
+      })
+    )
   );
 }
 

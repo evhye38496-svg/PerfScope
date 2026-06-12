@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0
+
+- Promoted One-Click Turbo to the V1.0 release line.
+- Removed preview/private package flags for Marketplace readiness.
+- Added a release guard that blocks publishing while placeholder project URLs remain.
+- Implemented safe `Turbo: Purge & Prepare for Uninstall` behavior for Turbo-owned state.
+- Added Workspace Folder scoped safe fixes and rollback metadata for multi-root workspaces.
+- Updated README, SUPPORT, Markdown report, Dashboard, and Side Bar wording for V1.0.
+- Updated VSIX packaging output to `dist/turbo-vscode-1.0.0.vsix`.
+
 ## 0.8.0
 
 - Prepared V0.8 as a VSIX beta release.

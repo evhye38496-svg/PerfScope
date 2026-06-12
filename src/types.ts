@@ -123,7 +123,7 @@ export interface ExtensionAudit {
   redundancyHints: RedundancyHint[];
 }
 
-export type FixTarget = 'workspace';
+export type FixTarget = 'workspace' | 'workspaceFolder';
 
 export interface FixProposal {
   id: string;
@@ -134,6 +134,8 @@ export interface FixProposal {
   currentValue: unknown;
   proposedValue: unknown;
   addedKeys: string[];
+  workspaceFolderUri?: string;
+  workspaceFolderName?: string;
 }
 
 export interface FixPreviewItem {
@@ -151,6 +153,7 @@ export interface ChangeLogEntry {
   newValue: unknown;
   workspaceId: string;
   timestamp: number;
+  workspaceFolderUri?: string;
 }
 
 export interface ChangeLog {
@@ -172,4 +175,11 @@ export interface RollbackResult {
   skipped: number;
   failed: number;
   remainingChangeLog?: ChangeLog;
+}
+
+export interface PurgeResult {
+  clearedWorkspaceState: boolean;
+  clearedGlobalState: boolean;
+  clearedUiState: boolean;
+  canceled: boolean;
 }

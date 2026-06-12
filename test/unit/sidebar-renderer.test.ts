@@ -70,6 +70,8 @@ test('sidebar empty state includes compact actions', () => {
   assert.match(html, /Undo Last Fix/);
   assert.match(html, /Export Report/);
   assert.match(html, /Open Full Dashboard/);
+  assert.match(html, /V1\.0/);
+  assert.match(html, /Offline/);
   assert.match(html, /primary-action/);
   assert.match(html, /score-meter/);
   assert.match(html, /prefers-reduced-motion/);

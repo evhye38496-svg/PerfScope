@@ -2,8 +2,10 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { detectGitRiskForRoots, expandGitSearchRootIds, type GitRisk } from './git-risk';
 
-export async function detectWorkspaceGitRisk(): Promise<GitRisk> {
-  const roots = getWorkspaceRootUris();
+export async function detectWorkspaceGitRisk(rootIds?: readonly string[]): Promise<GitRisk> {
+  const roots = rootIds && rootIds.length > 0
+    ? rootIds.map((rootId) => vscode.Uri.parse(rootId))
+    : getWorkspaceRootUris();
   const candidates = expandGitSearchUris(roots);
   return detectGitRiskForRoots(
     candidates.map((root) => root.toString()),

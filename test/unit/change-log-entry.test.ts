@@ -35,3 +35,20 @@ test('change log entry records missing previous workspace value', () => {
   assert.equal(entry.existedBefore, false);
   assert.equal(entry.previousValue, undefined);
 });
+
+test('change log entry records Workspace Folder scope', () => {
+  const entry = createChangeLogEntry(
+    proposal({
+      target: 'workspaceFolder',
+      workspaceFolderUri: 'file:///repo/app',
+      workspaceFolderName: 'app'
+    }),
+    false,
+    undefined,
+    'workspace-a',
+    1234
+  );
+
+  assert.equal(entry.target, 'workspaceFolder');
+  assert.equal(entry.workspaceFolderUri, 'file:///repo/app');
+});

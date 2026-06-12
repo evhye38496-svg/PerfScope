@@ -16,6 +16,8 @@ export function createMarkdownReport(result: ScanResult, changeLog?: ChangeLog):
   return [
     '# One-Click Turbo Report',
     '',
+    'Release: One-Click Turbo 1.0.0',
+    '',
     `Generated: ${text(result.generatedAt)}`,
     '',
     '## Summary',
@@ -67,6 +69,14 @@ export function createMarkdownReport(result: ScanResult, changeLog?: ChangeLog):
     '## Safe Fix and Undo Status',
     '',
     renderChangeLog(changeLog),
+    '',
+    '## Purge Behavior',
+    '',
+    'Turbo purge clears only Turbo-owned saved state and recent UI report data. It does not modify Workspace settings, uninstall extensions, or delete files.',
+    '',
+    '## Scope Notes',
+    '',
+    'Single-root workspaces use Workspace scope for safe fixes. Multi-root workspaces use Workspace Folder scope for each selected folder.',
     ''
   ].join('\n');
 }
@@ -161,9 +171,9 @@ function renderChangeLog(changeLog: ChangeLog | undefined): string {
     '',
     'This undo record belongs to the latest Turbo run that actually wrote Workspace settings. A later skipped or canceled fix run does not replace it.',
     '',
-    '| Key | Target | Existed Before |',
-    '| --- | --- | --- |',
-    ...changeLog.entries.map((entry) => `| ${markdownCell(entry.key)} | ${markdownCell(entry.target)} | ${entry.existedBefore ? 'Yes' : 'No'} |`)
+    '| Key | Target | Folder | Existed Before |',
+    '| --- | --- | --- | --- |',
+    ...changeLog.entries.map((entry) => `| ${markdownCell(entry.key)} | ${markdownCell(entry.target)} | ${markdownCell(entry.workspaceFolderUri ?? 'n/a')} | ${entry.existedBefore ? 'Yes' : 'No'} |`)
   ].join('\n');
 }
 

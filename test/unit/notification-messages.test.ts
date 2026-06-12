@@ -8,6 +8,7 @@ import {
   noChangeLogMessage,
   noFixesMessage,
   noReportMessage,
+  purgeCompleteMessage,
   rollbackCompleteMessage
 } from '../../src/ui/notification-messages';
 
@@ -41,6 +42,11 @@ test('notification summaries are concise and stable', () => {
   );
   assert.equal(exportCompleteMessage('C:\\report.md'), 'Turbo report exported - C:\\report.md');
   assert.equal(exportCanceledMessage(), 'Turbo report export canceled.');
+  assert.equal(
+    purgeCompleteMessage({ clearedWorkspaceState: true, clearedGlobalState: false, clearedUiState: true, canceled: false }),
+    'Turbo purge complete - cleared workspace state, UI report state. Settings were not modified.'
+  );
+  assert.equal(purgeCompleteMessage({ clearedWorkspaceState: false, clearedGlobalState: false, clearedUiState: false, canceled: true }), 'Turbo purge canceled.');
   assert.equal(noReportMessage(), 'Turbo: Run a scan before exporting a Markdown report.');
   assert.equal(noFixesMessage(), 'Turbo: No workspace safe fixes are available.');
   assert.equal(noChangeLogMessage(), 'Turbo: No workspace fix Change Log found.');

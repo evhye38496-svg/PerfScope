@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { ApplyFixResult, RollbackResult, ScanResult } from '../types';
+import type { ApplyFixResult, PurgeResult, RollbackResult, ScanResult } from '../types';
 import {
   auditCompleteMessage,
   errorMessage,
@@ -9,6 +9,7 @@ import {
   noChangeLogMessage,
   noFixesMessage,
   noReportMessage,
+  purgeCompleteMessage,
   rollbackCompleteMessage,
   scanCompleteMessage
 } from './notification-messages';
@@ -39,6 +40,10 @@ export class TurboNotifier {
 
   showExportCanceled(): void {
     void vscode.window.showInformationMessage(exportCanceledMessage());
+  }
+
+  showPurgeComplete(result: PurgeResult): void {
+    void vscode.window.showInformationMessage(purgeCompleteMessage(result), OPEN_DASHBOARD).then(runAction);
   }
 
   showNoReport(): void {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createRemainingChangeLog, getRollbackValue, shouldRollbackEntry } from '../../src/fix/rollback-rules';
+import { canRollbackEntryInScope, createRemainingChangeLog, getRollbackValue, shouldRollbackEntry } from '../../src/fix/rollback-rules';
 
 test('rollback deletes workspace key when it did not exist before', () => {
   assert.equal(getRollbackValue(false, 'ignored'), undefined);
@@ -48,4 +48,37 @@ test('partial rollback Change Log keeps only remaining entries', () => {
 
   assert.equal(remaining.entries.length, 1);
   assert.equal(remaining.entries[0].key, 'search.exclude');
+});
+
+test('rollback skips Workspace Folder entries when the folder is unavailable', () => {
+  assert.equal(
+    canRollbackEntryInScope(
+      {
+        key: 'search.exclude',
+        target: 'workspaceFolder',
+        existedBefore: false,
+        newValue: {},
+        workspaceId: 'workspace-a',
+        timestamp: 1234,
+        workspaceFolderUri: 'file:///repo/app'
+      },
+      ['file:///repo/other']
+    ),
+    false
+  );
+  assert.equal(
+    canRollbackEntryInScope(
+      {
+        key: 'search.exclude',
+        target: 'workspaceFolder',
+        existedBefore: false,
+        newValue: {},
+        workspaceId: 'workspace-a',
+        timestamp: 1234,
+        workspaceFolderUri: 'file:///repo/app'
+      },
+      ['file:///repo/app']
+    ),
+    true
+  );
 });

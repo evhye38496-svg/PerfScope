@@ -68,6 +68,7 @@ function renderEmptyState(): string {
   <span class="eyebrow">Ready</span>
   <strong class="score-value">Turbo</strong>
   <p>Run a scan to light up your performance console.</p>
+  ${renderReleaseBadges()}
   <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: 0%"></div></div>
 </section>`;
 }
@@ -81,12 +82,17 @@ function renderSummary(result: ScanResult): string {
   </div>
   <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: ${clampScore(result.score)}%"></div></div>
   <p>Last scan: ${escapeHtml(result.generatedAt)}</p>
+  ${renderReleaseBadges()}
 </section>
 <section class="card panel-card sidebar-metrics">
   <div class="sidebar-metric"><span>Issues</span><strong>${result.issues.length}</strong></div>
   <div class="sidebar-metric"><span>Extensions</span><strong>${result.stats.totalExtensions}</strong></div>
   <div class="sidebar-metric"><span>Active</span><strong>${result.stats.activeExtensions}</strong></div>
 </section>`;
+}
+
+function renderReleaseBadges(): string {
+  return '<div class="tag-row"><span class="tag">V1.0</span><span class="tag">Offline</span><span class="tag">Local</span></div>';
 }
 
 function renderActions(): string {

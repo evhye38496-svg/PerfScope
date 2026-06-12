@@ -4,11 +4,22 @@ import { stableEquals } from '../utils/stable-equality';
 import { createChangeLogEntry } from './change-log-entry';
 import { getWorkspaceId, loadWorkspaceChangeLog, saveWorkspaceChangeLog } from './change-log-manager';
 
-function inspectWorkspaceValue(key: string): { existedBefore: boolean; value: unknown } {
-  const inspected = vscode.workspace.getConfiguration().inspect(key);
+function getProposalScope(proposal: FixProposal): vscode.Uri | undefined {
+  return proposal.workspaceFolderUri ? vscode.Uri.parse(proposal.workspaceFolderUri) : undefined;
+}
+
+function getConfigurationTarget(proposal: FixProposal): vscode.ConfigurationTarget {
+  return proposal.target === 'workspaceFolder'
+    ? vscode.ConfigurationTarget.WorkspaceFolder
+    : vscode.ConfigurationTarget.Workspace;
+}
+
+function inspectProposalValue(proposal: FixProposal): { existedBefore: boolean; value: unknown } {
+  const inspected = vscode.workspace.getConfiguration(undefined, getProposalScope(proposal)).inspect(proposal.key);
+  const value = proposal.target === 'workspaceFolder' ? inspected?.workspaceFolderValue : inspected?.workspaceValue;
   return {
-    existedBefore: inspected?.workspaceValue !== undefined,
-    value: inspected?.workspaceValue
+    existedBefore: value !== undefined,
+    value
   };
 }
 
@@ -22,18 +33,19 @@ export async function applyWorkspaceFixes(
   const entries: ChangeLogEntry[] = [];
   const workspaceId = getWorkspaceId();
   const timestamp = Date.now();
-  const config = vscode.workspace.getConfiguration();
   const previousChangeLog = loadWorkspaceChangeLog(context);
 
   for (const proposal of proposals) {
     try {
-      const before = inspectWorkspaceValue(proposal.key);
+      const before = inspectProposalValue(proposal);
       if (!stableEquals(before.value, proposal.currentValue)) {
         skipped += 1;
         continue;
       }
 
-      await config.update(proposal.key, proposal.proposedValue, vscode.ConfigurationTarget.Workspace);
+      await vscode.workspace
+        .getConfiguration(undefined, getProposalScope(proposal))
+        .update(proposal.key, proposal.proposedValue, getConfigurationTarget(proposal));
       entries.push(createChangeLogEntry(proposal, before.existedBefore, before.value, workspaceId, timestamp));
       applied += 1;
     } catch {

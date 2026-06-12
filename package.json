@@ -2,11 +2,9 @@
   "name": "turbo-vscode",
   "displayName": "One-Click Turbo",
   "description": "VS Code performance health scanner and optimization guide.",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "publisher": "Evhye",
   "license": "MIT",
-  "private": true,
-  "preview": true,
   "icon": "resources/turbo-128.png",
   "repository": {
     "type": "git",
@@ -117,8 +115,8 @@
     "test:vscode": "npm run compile && node ./out/test/vscode/runTest.js",
     "vscode:prepublish": "npm run compile",
     "package": "npm run compile",
-    "package:vsix": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/turbo-vscode-0.8.0.vsix",
-    "verify:release": "npm run compile && npm test && npm run test:vscode && npm run package:vsix"
+    "package:vsix": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/turbo-vscode-1.0.0.vsix",
+    "verify:release": "npm run compile && node scripts/verify-release.js && npm test && npm run test:vscode && npm run package:vsix"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1"

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorkspaceFixProposals } from '../../src/fix/fix-engine';
+import { createWorkspaceFixProposals, createWorkspaceFolderFixProposals } from '../../src/fix/fix-engine';
 
 test('creates proposals only for missing workspace values', () => {
   const proposals = createWorkspaceFixProposals({
@@ -55,4 +55,30 @@ test('records only missing object keys in proposal metadata', () => {
   const watcher = proposals.find((proposal) => proposal.key === 'files.watcherExclude');
   assert.ok(watcher);
   assert.equal(watcher.addedKeys.includes('**/node_modules/**'), false);
+});
+
+test('single-root proposals target Workspace scope', () => {
+  const proposals = createWorkspaceFixProposals({
+    watcherExclude: {},
+    searchExclude: {},
+    searchFollowSymlinks: undefined
+  });
+
+  assert.ok(proposals.length > 0);
+  assert.ok(proposals.every((proposal) => proposal.target === 'workspace'));
+});
+
+test('multi-root proposals target Workspace Folder scope', () => {
+  const proposals = createWorkspaceFolderFixProposals({
+    watcherExclude: {},
+    searchExclude: {},
+    searchFollowSymlinks: undefined,
+    workspaceFolderUri: 'file:///repo/app',
+    workspaceFolderName: 'app'
+  });
+
+  assert.ok(proposals.length > 0);
+  assert.ok(proposals.every((proposal) => proposal.target === 'workspaceFolder'));
+  assert.ok(proposals.every((proposal) => proposal.workspaceFolderUri === 'file:///repo/app'));
+  assert.match(proposals[0].title, /app/);
 });

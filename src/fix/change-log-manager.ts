@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import type { ChangeLog } from '../types';
 
-const CHANGE_LOG_KEY = 'turbo.lastWorkspaceChangeLog';
+export const CHANGE_LOG_KEY = 'turbo.lastWorkspaceChangeLog';
+export const TURBO_WORKSPACE_STATE_KEYS = [CHANGE_LOG_KEY] as const;
+export const TURBO_GLOBAL_STATE_KEYS = ['turbo.lastGlobalChangeLog'] as const;
 
 export function getWorkspaceId(): string {
   return vscode.workspace.workspaceFile?.fsPath ?? vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).join('|') ?? 'empty';

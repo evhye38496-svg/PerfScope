@@ -9,11 +9,12 @@ export function createChangeLogEntry(
 ): ChangeLogEntry {
   return {
     key: proposal.key,
-    target: 'workspace',
+    target: proposal.target,
     existedBefore,
     previousValue,
     newValue: proposal.proposedValue,
     workspaceId,
-    timestamp
+    timestamp,
+    workspaceFolderUri: proposal.workspaceFolderUri
   };
 }

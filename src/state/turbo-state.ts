@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import type { ScanResult } from '../types';
 
-export type TurboOperationKind = 'scan' | 'audit' | 'fix' | 'undo' | 'export';
+export type TurboOperationKind = 'scan' | 'audit' | 'fix' | 'undo' | 'export' | 'purge';
 export type TurboOperationStatus = 'success' | 'skipped' | 'failed' | 'canceled';
 
 export interface TurboOperationSummary {
@@ -30,6 +30,10 @@ export class TurboState implements vscode.Disposable {
     return this.snapshot;
   }
 
+  hasData(): boolean {
+    return this.snapshot.lastResult !== undefined || this.snapshot.lastOperation !== undefined;
+  }
+
   setLastResult(result: ScanResult, kind: 'scan' | 'audit' = 'scan'): void {
     this.snapshot = {
       ...this.snapshot,
@@ -55,6 +59,11 @@ export class TurboState implements vscode.Disposable {
         timestamp: new Date().toISOString()
       }
     };
+    this.changeEmitter.fire(this.snapshot);
+  }
+
+  clear(): void {
+    this.snapshot = {};
     this.changeEmitter.fire(this.snapshot);
   }
 

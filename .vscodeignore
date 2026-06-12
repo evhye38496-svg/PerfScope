@@ -2,9 +2,11 @@
 .vscode/**
 .vscode-test/**
 dist/**
+scripts/**
 src/**
 test/**
 out/test/**
+out/src/release/**
 **/*.map
 tsconfig.json
 package-lock.json

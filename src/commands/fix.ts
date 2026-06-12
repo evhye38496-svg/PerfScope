@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { FixPreviewItem, FixProposal } from '../types';
-import { createWorkspaceFixProposals, type WorkspaceConfigValues } from '../fix/fix-engine';
+import { createWorkspaceFixProposals, createWorkspaceFolderFixProposals, type WorkspaceConfigValues } from '../fix/fix-engine';
 import { loadWorkspaceChangeLog } from '../fix/change-log-manager';
 import { detectWorkspaceGitRisk } from '../fix/git-tracker';
 import { shouldWarnForGitRisk } from '../fix/git-risk';
@@ -17,30 +17,45 @@ export interface FixCommandDependencies {
   recordOperation(operation: Omit<TurboOperationSummary, 'timestamp'>): void;
 }
 
-function inspectWorkspaceValue<T>(key: string): T | undefined {
-  return vscode.workspace.getConfiguration().inspect<T>(key)?.workspaceValue;
+function inspectWorkspaceValue<T>(key: string, scope?: vscode.Uri): T | undefined {
+  const inspected = vscode.workspace.getConfiguration(undefined, scope).inspect<T>(key);
+  return scope ? inspected?.workspaceFolderValue : inspected?.workspaceValue;
 }
 
-function readWorkspaceConfigValues(): WorkspaceConfigValues {
+function readWorkspaceConfigValues(scope?: vscode.WorkspaceFolder): WorkspaceConfigValues {
   return {
-    watcherExclude: inspectWorkspaceValue<Record<string, unknown>>('files.watcherExclude'),
-    searchExclude: inspectWorkspaceValue<Record<string, unknown>>('search.exclude'),
-    searchFollowSymlinks: inspectWorkspaceValue<boolean>('search.followSymlinks')
+    watcherExclude: inspectWorkspaceValue<Record<string, unknown>>('files.watcherExclude', scope?.uri),
+    searchExclude: inspectWorkspaceValue<Record<string, unknown>>('search.exclude', scope?.uri),
+    searchFollowSymlinks: inspectWorkspaceValue<boolean>('search.followSymlinks', scope?.uri),
+    workspaceFolderUri: scope?.uri.toString(),
+    workspaceFolderName: scope?.name
   };
+}
+
+function createSafeFixProposals(): FixProposal[] {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  if (folders.length > 1) {
+    return folders.flatMap((folder) => createWorkspaceFolderFixProposals(readWorkspaceConfigValues(folder)));
+  }
+
+  return createWorkspaceFixProposals(readWorkspaceConfigValues());
 }
 
 function toPreviewItem(proposal: FixProposal): FixPreviewItem {
   const added = proposal.addedKeys.length === 1 ? '1 change' : `${proposal.addedKeys.length} changes`;
+  const scope = proposal.target === 'workspaceFolder'
+    ? `Workspace Folder - ${proposal.workspaceFolderName ?? proposal.workspaceFolderUri ?? 'Unknown'}`
+    : 'Workspace';
   return {
     label: proposal.title,
-    description: `Workspace - ${proposal.key}`,
-    detail: `${added}; Deep Merge + User Wins. ${proposal.description}`,
+    description: `${scope} - ${proposal.key}`,
+    detail: `${added}; ${proposal.target === 'workspaceFolder' ? 'WorkspaceFolder' : 'Workspace'} scope; Deep Merge + User Wins. ${proposal.description}`,
     proposal
   };
 }
 
 export async function applySafeFixesCommand(deps: FixCommandDependencies): Promise<void> {
-  const proposals = createWorkspaceFixProposals(readWorkspaceConfigValues());
+  const proposals = createSafeFixProposals();
 
   if (proposals.length === 0) {
     deps.statusBar.setIdle();
@@ -69,7 +84,12 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
     return;
   }
 
-  const gitRisk = await detectWorkspaceGitRisk();
+  const selectedProposals = selected.map((item) => item.proposal);
+  const gitRisk = await detectWorkspaceGitRisk(
+    selectedProposals
+      .map((proposal) => proposal.workspaceFolderUri)
+      .filter((uri): uri is string => typeof uri === 'string')
+  );
   if (shouldWarnForGitRisk(gitRisk)) {
     const choice = await vscode.window.showWarningMessage(
       gitRisk === 'likelyTracked'
@@ -96,7 +116,7 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
   try {
     const result = await applyWorkspaceFixes(
       deps.context,
-      selected.map((item) => item.proposal)
+      selectedProposals
     );
     deps.statusBar.setIdle();
     deps.recordOperation({

@@ -59,6 +59,10 @@ function renderToolbar(): string {
 </nav>`;
 }
 
+function renderReleaseBadges(): string {
+  return '<div class="tag-row"><span class="tag">V1.0</span><span class="tag">Offline</span><span class="tag">Preview-before-write</span></div>';
+}
+
 function renderEmptyState(operation?: TurboOperationSummary): string {
   return `<section class="launcher-shell">
   <header class="hero-grid">
@@ -66,6 +70,7 @@ function renderEmptyState(operation?: TurboOperationSummary): string {
       <span class="eyebrow">Ready</span>
       <h1>One-Click Turbo</h1>
       <p>Run a scan to build your VS Code performance report.</p>
+      ${renderReleaseBadges()}
       <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: 0%"></div></div>
     </section>
     <section class="card score-hero">
@@ -95,6 +100,7 @@ function renderResult(result: ScanResult, viewMode: DashboardViewMode, operation
       </div>
       <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: ${clampScore(result.score)}%"></div></div>
       <p>Last scan: ${escapeHtml(result.generatedAt)}</p>
+      ${renderReleaseBadges()}
     </section>
     <section class="card score-hero">
       <span class="eyebrow">Quick Actions</span>

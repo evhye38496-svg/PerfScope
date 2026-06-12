@@ -98,22 +98,27 @@ test('markdown report includes score, stats, issues, audit, and fix status', () 
     entries: [
       {
         key: 'files.watcherExclude',
-        target: 'workspace',
+        target: 'workspaceFolder',
         existedBefore: false,
         newValue: {},
         workspaceId: 'workspace',
-        timestamp: 1781234567890
+        timestamp: 1781234567890,
+        workspaceFolderUri: 'file:///repo/app'
       }
     ]
   });
 
   assert.match(report, /Turbo Score: 76/);
+  assert.match(report, /Release: One-Click Turbo 1\.0\.0/);
   assert.match(report, /## Issues/);
   assert.match(report, /## Extension Audit/);
   assert.match(report, /Known Guidance and Alternatives/);
   assert.match(report, /Safe Fix and Undo Status/);
   assert.match(report, /Last successful workspace write Change Log/);
   assert.match(report, /latest Turbo run that actually wrote Workspace settings/);
+  assert.match(report, /Purge Behavior/);
+  assert.match(report, /Workspace Folder scope/);
+  assert.match(report, /file:\/\/\/repo\/app/);
   assert.match(report, /files\.watcherExclude/);
 });
 

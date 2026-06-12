@@ -83,6 +83,8 @@ test('dashboard renders V0.7 launcher command buttons and score UI', () => {
   assert.match(html, /data-command="undoLastFix"/);
   assert.match(html, /data-command="exportReport"/);
   assert.match(html, /launcher-actions/);
+  assert.match(html, /V1\.0/);
+  assert.match(html, /Offline/);
   assert.match(html, /primary-action/);
   assert.match(html, /score-meter/);
   assert.match(html, /prefers-reduced-motion/);

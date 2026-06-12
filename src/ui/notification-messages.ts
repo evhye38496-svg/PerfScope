@@ -1,4 +1,4 @@
-import type { ApplyFixResult, RollbackResult, ScanResult } from '../types';
+import type { ApplyFixResult, PurgeResult, RollbackResult, ScanResult } from '../types';
 
 export function scanCompleteMessage(result: ScanResult): string {
   return `Turbo scan complete - Score: ${result.score}. ${result.issues.length} issues found.`;
@@ -28,6 +28,22 @@ export function exportCompleteMessage(filePath: string): string {
 
 export function exportCanceledMessage(): string {
   return 'Turbo report export canceled.';
+}
+
+export function purgeCompleteMessage(result: PurgeResult): string {
+  if (result.canceled) {
+    return 'Turbo purge canceled.';
+  }
+
+  const cleared = [
+    result.clearedWorkspaceState ? 'workspace state' : '',
+    result.clearedGlobalState ? 'global state' : '',
+    result.clearedUiState ? 'UI report state' : ''
+  ].filter(Boolean);
+
+  return cleared.length > 0
+    ? `Turbo purge complete - cleared ${cleared.join(', ')}. Settings were not modified.`
+    : 'Turbo purge complete - no saved Turbo state was found.';
 }
 
 export function noReportMessage(): string {

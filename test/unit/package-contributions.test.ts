@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 type PackageJson = {
+  version?: string;
+  preview?: boolean;
+  private?: boolean;
+  icon?: string;
   activationEvents?: string[];
   contributes?: {
     viewsContainers?: {
@@ -30,4 +34,13 @@ test('package contributes One-Click Turbo activity bar container and dashboard v
     id: 'turbo.dashboard',
     name: 'Dashboard'
   });
+});
+
+test('package is marked as V1.0 Marketplace-ready metadata', () => {
+  const pkg = packageJson();
+
+  assert.equal(pkg.version, '1.0.0');
+  assert.equal(pkg.preview, undefined);
+  assert.equal(pkg.private, undefined);
+  assert.equal(pkg.icon, 'resources/turbo-128.png');
 });
