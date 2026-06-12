@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import type { ApplyFixResult, ChangeLog, ChangeLogEntry, FixProposal } from '../types';
+import { stableEquals } from '../utils/stable-equality';
 import { createChangeLogEntry } from './change-log-entry';
-import { getWorkspaceId, saveWorkspaceChangeLog } from './change-log-manager';
+import { getWorkspaceId, loadWorkspaceChangeLog, saveWorkspaceChangeLog } from './change-log-manager';
 
 function inspectWorkspaceValue(key: string): { existedBefore: boolean; value: unknown } {
   const inspected = vscode.workspace.getConfiguration().inspect(key);
@@ -9,10 +10,6 @@ function inspectWorkspaceValue(key: string): { existedBefore: boolean; value: un
     existedBefore: inspected?.workspaceValue !== undefined,
     value: inspected?.workspaceValue
   };
-}
-
-function valuesEqual(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 export async function applyWorkspaceFixes(
@@ -26,11 +23,12 @@ export async function applyWorkspaceFixes(
   const workspaceId = getWorkspaceId();
   const timestamp = Date.now();
   const config = vscode.workspace.getConfiguration();
+  const previousChangeLog = loadWorkspaceChangeLog(context);
 
   for (const proposal of proposals) {
     try {
       const before = inspectWorkspaceValue(proposal.key);
-      if (!valuesEqual(before.value, proposal.currentValue)) {
+      if (!stableEquals(before.value, proposal.currentValue)) {
         skipped += 1;
         continue;
       }
@@ -56,5 +54,11 @@ export async function applyWorkspaceFixes(
     await saveWorkspaceChangeLog(context, changeLog);
   }
 
-  return { applied, skipped, failed, changeLog };
+  return {
+    applied,
+    skipped,
+    failed,
+    changeLog,
+    retainedPreviousChangeLog: !changeLog && previousChangeLog !== undefined
+  };
 }

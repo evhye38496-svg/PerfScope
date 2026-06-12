@@ -70,7 +70,7 @@ function scanResult(): ScanResult {
   };
 }
 
-test('dashboard renders V0.5 command buttons', () => {
+test('dashboard renders V0.7 launcher command buttons and score UI', () => {
   const html = renderDashboardHtml({
     cspSource: 'vscode-resource:',
     nonce: 'abc',
@@ -82,6 +82,36 @@ test('dashboard renders V0.5 command buttons', () => {
   assert.match(html, /data-command="applySafeFixes"/);
   assert.match(html, /data-command="undoLastFix"/);
   assert.match(html, /data-command="exportReport"/);
+  assert.match(html, /launcher-actions/);
+  assert.match(html, /primary-action/);
+  assert.match(html, /score-meter/);
+  assert.match(html, /prefers-reduced-motion/);
+  assert.doesNotMatch(html, /setInterval/);
+  assert.doesNotMatch(html, /requestAnimationFrame/);
+  assert.doesNotMatch(html, /<canvas/);
+});
+
+test('dashboard renders launcher-style result sections', () => {
+  const html = renderDashboardHtml({
+    cspSource: 'vscode-resource:',
+    nonce: 'abc',
+    result: scanResult(),
+    operation: {
+      kind: 'undo',
+      status: 'success',
+      message: 'Restored 1 workspace settings; skipped 0; failed 0.',
+      timestamp: '2026-06-12T07:05:00.000Z'
+    },
+    viewMode: 'scan'
+  });
+
+  assert.match(html, /score-hero/);
+  assert.match(html, /section-grid/);
+  assert.match(html, /panel-card/);
+  assert.match(html, /issue-card/);
+  assert.match(html, /Recent Activity/);
+  assert.match(html, /Restored 1 workspace settings/);
+  assert.match(html, /style="--score: 88%"/);
 });
 
 test('dashboard escapes scan and manifest strings', () => {

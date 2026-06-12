@@ -9,7 +9,8 @@ export interface ScanCommandDependencies {
   dashboard: TurboDashboard;
   notifier: TurboNotifier;
   statusBar: TurboStatusBar;
-  setLastResult(result: ScanResult): void;
+  revealDashboard: boolean;
+  setLastResult(result: ScanResult, kind: 'scan' | 'audit'): void;
 }
 
 export async function runFullScanCommand(deps: ScanCommandDependencies): Promise<void> {
@@ -24,10 +25,12 @@ export async function runFullScanCommand(deps: ScanCommandDependencies): Promise
       },
       async () => {
         const result = await runScan();
-        deps.setLastResult(result);
+        deps.setLastResult(result, 'scan');
         deps.statusBar.updateScore(result.score, result.grade, result.generatedAt);
         deps.dashboard.update(result, 'scan');
-        deps.dashboard.show('scan');
+        if (deps.revealDashboard) {
+          deps.dashboard.show('scan');
+        }
         deps.notifier.showScanComplete(result);
       }
     );
@@ -49,10 +52,12 @@ export async function quickAuditCommand(deps: ScanCommandDependencies): Promise<
       },
       async () => {
         const result = await runScan();
-        deps.setLastResult(result);
+        deps.setLastResult(result, 'audit');
         deps.statusBar.updateScore(result.score, result.grade, result.generatedAt);
         deps.dashboard.update(result, 'audit');
-        deps.dashboard.show('audit');
+        if (deps.revealDashboard) {
+          deps.dashboard.show('audit');
+        }
         deps.notifier.showAuditComplete(result);
       }
     );

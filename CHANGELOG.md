@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.0
+
+- Polished the Side Bar and full Dashboard with a lightweight launcher-style UI.
+- Added shared Webview style tokens, score meters, and primary action styling.
+- Added low-cost CSS motion with reduced-motion support.
+- Added renderer tests for launcher sections, score meters, and motion boundaries.
+
+## 0.6.0
+
+- Added a dedicated One-Click Turbo Activity Bar container.
+- Added a compact Side Bar Dashboard Webview.
+- Shared the latest scan result between commands, the Side Bar, and the full Dashboard.
+- Added unit coverage for Activity Bar contributions and Side Bar rendering.
+
 ## 0.5.0
 
 - Added Git repository warning before applying Workspace safe fixes.

@@ -1,13 +1,14 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { detectGitRiskForRoots, type GitRisk } from './git-risk';
+import { detectGitRiskForRoots, expandGitSearchRootIds, type GitRisk } from './git-risk';
 
 export async function detectWorkspaceGitRisk(): Promise<GitRisk> {
   const roots = getWorkspaceRootUris();
+  const candidates = expandGitSearchUris(roots);
   return detectGitRiskForRoots(
-    roots.map((root) => root.toString()),
+    candidates.map((root) => root.toString()),
     async (rootId) => {
-      const root = roots.find((candidate) => candidate.toString() === rootId);
+      const root = candidates.find((candidate) => candidate.toString() === rootId);
       if (!root) {
         return false;
       }
@@ -45,4 +46,31 @@ function getWorkspaceRootUris(): vscode.Uri[] {
   }
 
   return [];
+}
+
+export function expandGitSearchUris(roots: readonly vscode.Uri[], maxDepth = 6): vscode.Uri[] {
+  const rootById = new Map(roots.map((root) => [root.toString(), root]));
+  const expandedIds = expandGitSearchRootIds(
+    roots.map((root) => root.toString()),
+    (rootId) => {
+      const root = rootById.get(rootId);
+      const parent = root ? getParentUri(root) : undefined;
+      if (parent) {
+        rootById.set(parent.toString(), parent);
+      }
+      return parent?.toString();
+    },
+    maxDepth
+  );
+
+  return expandedIds.map((id) => rootById.get(id)).filter((root): root is vscode.Uri => root !== undefined);
+}
+
+function getParentUri(uri: vscode.Uri): vscode.Uri | undefined {
+  const parentPath = path.dirname(uri.fsPath);
+  if (!parentPath || parentPath === uri.fsPath) {
+    return undefined;
+  }
+
+  return uri.scheme === 'file' ? vscode.Uri.file(parentPath) : uri.with({ path: path.dirname(uri.path) });
 }

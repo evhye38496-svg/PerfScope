@@ -2,10 +2,12 @@
 
 One-Click Turbo is a VS Code performance health scanner and optimization guide.
 
-V0.5 provides a safe, offline VS Code performance workflow:
+V0.7 provides a safe, offline VS Code performance workflow:
 
 - Manual Turbo scan command
 - Quick extension audit
+- Activity Bar entry with a compact Side Bar dashboard
+- Lightweight launcher-style Dashboard and Side Bar UI
 - Dashboard actions for scan, audit, safe fixes, and undo
 - Status bar states for scan, audit, fix, undo, score, and error
 - Gentle completion and error notifications
@@ -15,7 +17,7 @@ V0.5 provides a safe, offline VS Code performance workflow:
 - Workspace safe fixes for watcher/search exclusions and `search.followSymlinks`
 - Workspace Change Log rollback for Turbo-written settings
 
-V0.5 only writes Workspace settings after an explicit QuickPick confirmation and a Git risk warning when applicable. It does not write User settings, disable extensions, modify `.vscode/extensions.json`, read source files, upload data, or fetch remote databases.
+V0.7 only writes Workspace settings after an explicit QuickPick confirmation and a Git risk warning when applicable. It does not write User settings, disable extensions, modify `.vscode/extensions.json`, read source files, upload data, or fetch remote databases.
 
 ## Development
 
@@ -33,4 +35,4 @@ npm test
 npm run test:vscode
 ```
 
-Use the **Run Extension** launch configuration in VS Code to open an Extension Development Host.
+Use the **Run Extension** launch configuration in VS Code to open an Extension Development Host. In that host window, the left Activity Bar shows the **One-Click Turbo** entry with a compact launcher-style Dashboard view.

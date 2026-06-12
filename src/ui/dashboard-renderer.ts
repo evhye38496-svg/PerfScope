@@ -1,5 +1,7 @@
 import type { ExtensionCategory, ScanResult } from '../types';
 import { escapeHtml } from '../utils/html-escape';
+import type { TurboOperationSummary } from '../state/turbo-state';
+import { renderWebviewStyles } from './webview-styles';
 
 export type DashboardViewMode = 'scan' | 'audit';
 
@@ -19,9 +21,10 @@ export function renderDashboardHtml(params: {
   cspSource: string;
   nonce: string;
   result?: ScanResult;
+  operation?: TurboOperationSummary;
   viewMode: DashboardViewMode;
 }): string {
-  const content = params.result ? renderResult(params.result, params.viewMode) : renderEmptyState();
+  const content = params.result ? renderResult(params.result, params.viewMode, params.operation) : renderEmptyState(params.operation);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -30,32 +33,7 @@ export function renderDashboardHtml(params: {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' ${params.cspSource}; script-src 'nonce-${params.nonce}' ${params.cspSource}; img-src ${params.cspSource} data:; font-src ${params.cspSource}; connect-src 'none';">
   <title>One-Click Turbo</title>
-  <style>
-    body { font-family: var(--vscode-font-family); color: var(--vscode-foreground); background: var(--vscode-editor-background); margin: 0; }
-    main { padding: 20px; max-width: 960px; }
-    h1 { font-size: 22px; margin: 0 0 16px; }
-    h2 { font-size: 16px; margin: 20px 0 10px; }
-    h3 { font-size: 14px; margin: 14px 0 8px; }
-    button { display: inline-flex; align-items: center; min-height: 28px; border: 1px solid var(--vscode-button-border, transparent); border-radius: 4px; padding: 4px 10px; color: var(--vscode-button-foreground); background: var(--vscode-button-background); cursor: pointer; }
-    button:hover { background: var(--vscode-button-hoverBackground); }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 20px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-    .panel, .stat, .issue { border: 1px solid var(--vscode-panel-border); border-radius: 6px; padding: 10px; }
-    .panel p, .issue p { margin: 4px 0 0; color: var(--vscode-descriptionForeground); }
-    .score { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-    .score strong { font-size: 56px; line-height: 1; }
-    .grade { color: var(--vscode-descriptionForeground); font-size: 18px; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 12px 0; }
-    .stat span { display: block; color: var(--vscode-descriptionForeground); font-size: 12px; }
-    .issues { display: grid; gap: 8px; }
-    .issue h3 { margin: 0 0 4px; font-size: 14px; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px !important; }
-    .tags span { border: 1px solid var(--vscode-panel-border); border-radius: 999px; padding: 2px 6px; font-size: 11px; }
-    .critical { border-left: 4px solid var(--vscode-errorForeground); }
-    .warning { border-left: 4px solid var(--vscode-editorWarning-foreground); }
-    .info { border-left: 4px solid var(--vscode-editorInfo-foreground); }
-    .empty { color: var(--vscode-descriptionForeground); }
-  </style>
+  <style>${renderWebviewStyles('dashboard')}</style>
 </head>
 <body>
   <main>${content}</main>
@@ -72,70 +50,124 @@ export function renderDashboardHtml(params: {
 }
 
 function renderToolbar(): string {
-  return `<nav class="toolbar" aria-label="Turbo commands">
-  <button type="button" data-command="runFullScan">Run Full Scan</button>
-  <button type="button" data-command="quickAudit">Quick Audit</button>
-  <button type="button" data-command="applySafeFixes">Apply Safe Fixes</button>
-  <button type="button" data-command="undoLastFix">Undo Last Fix</button>
-  <button type="button" data-command="exportReport">Export Report</button>
+  return `<nav class="toolbar launcher-actions" aria-label="Turbo commands">
+  <button class="action-button primary-action" type="button" data-command="runFullScan">Run Full Scan</button>
+  <button class="action-button secondary" type="button" data-command="quickAudit">Quick Audit</button>
+  <button class="action-button secondary" type="button" data-command="applySafeFixes">Apply Safe Fixes</button>
+  <button class="action-button secondary" type="button" data-command="undoLastFix">Undo Last Fix</button>
+  <button class="action-button secondary" type="button" data-command="exportReport">Export Report</button>
 </nav>`;
 }
 
-function renderEmptyState(): string {
-  return `<h1>One-Click Turbo</h1>
-${renderToolbar()}
-<section class="grid">
-  <article class="panel"><h2>Scan</h2><p>Run a performance health scan and open the score report.</p></article>
-  <article class="panel"><h2>Audit</h2><p>Review installed extensions, categories, guidance, and overlap hints.</p></article>
-  <article class="panel"><h2>Fix</h2><p>Preview workspace safe fixes, then apply or undo Turbo-written settings.</p></article>
+function renderEmptyState(operation?: TurboOperationSummary): string {
+  return `<section class="launcher-shell">
+  <header class="hero-grid">
+    <section class="card score-hero">
+      <span class="eyebrow">Ready</span>
+      <h1>One-Click Turbo</h1>
+      <p>Run a scan to build your VS Code performance report.</p>
+      <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: 0%"></div></div>
+    </section>
+    <section class="card score-hero">
+      <span class="eyebrow">Launcher</span>
+      ${renderToolbar()}
+    </section>
+  </header>
+  <section class="section-grid">
+    <article class="panel-card"><h2>Scan</h2><p>Measure extension inventory, activation signals, and workspace configuration.</p></article>
+    <article class="panel-card"><h2>Audit</h2><p>Review known guidance, alternatives, and low-risk overlap hints.</p></article>
+    <article class="panel-card"><h2>Fix</h2><p>Preview workspace safe fixes before any setting is written.</p></article>
+  </section>
+  ${renderOperation(operation)}
 </section>`;
 }
 
-function renderResult(result: ScanResult, viewMode: DashboardViewMode): string {
+function renderResult(result: ScanResult, viewMode: DashboardViewMode, operation?: TurboOperationSummary): string {
+  const audit = renderAudit(result);
+
+  return `<section class="launcher-shell">
+  <header class="hero-grid">
+    <section class="card score-hero">
+      <span class="eyebrow">Turbo Score</span>
+      <div class="score-line">
+        <strong class="score-value">${result.score}</strong>
+        <span class="score-grade">${escapeHtml(result.grade)}</span>
+      </div>
+      <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: ${clampScore(result.score)}%"></div></div>
+      <p>Last scan: ${escapeHtml(result.generatedAt)}</p>
+    </section>
+    <section class="card score-hero">
+      <span class="eyebrow">Quick Actions</span>
+      <h1>One-Click Turbo</h1>
+      ${renderToolbar()}
+    </section>
+  </header>
+  <section class="section-grid">
+    <article class="panel-card"><h2>Scan</h2><p>${result.issues.length} issues found across ${result.stats.totalExtensions} extensions.</p></article>
+    <article class="panel-card"><h2>Audit</h2><p>${result.audit.items.length} extensions, ${result.audit.knownHeavyCount} guidance matches, ${result.audit.redundancyHints.length} overlap hints.</p></article>
+    <article class="panel-card"><h2>Fix</h2><p>Workspace safe fixes remain preview-first and undoable through the last Change Log.</p></article>
+  </section>
+  <section class="section-grid">
+    ${renderStats(result)}
+  </section>
+  ${renderOperation(operation)}
+  ${viewMode === 'audit' ? audit : ''}
+  ${renderIssues(result)}
+  ${viewMode === 'scan' ? audit : ''}
+</section>`;
+}
+
+function renderOperation(operation?: TurboOperationSummary): string {
+  if (!operation) {
+    return '';
+  }
+
+  return `<section>
+  <h2>Recent Activity</h2>
+  <article class="panel-card">
+    <div class="tag-row"><span class="tag">${escapeHtml(operation.kind)}</span><span class="tag">${escapeHtml(operation.status)}</span></div>
+    <p>${escapeHtml(operation.message)}</p>
+    <p class="muted">${escapeHtml(operation.timestamp)}</p>
+  </article>
+</section>`;
+}
+
+function renderStats(result: ScanResult): string {
+  return [
+    ['Extensions', result.stats.totalExtensions],
+    ['Active', result.stats.activeExtensions],
+    ['Always-on', result.stats.alwaysOnExtensions],
+    ['Known guidance', result.stats.knownHeavyExtensions],
+    ['Alternatives', result.stats.alternativeSuggestions],
+    ['Heap', `${result.stats.extensionHostHeapMB} MB`]
+  ]
+    .map(([label, value]) => `<article class="metric-card"><span>${escapeHtml(String(label))}</span><strong>${escapeHtml(String(value))}</strong></article>`)
+    .join('');
+}
+
+function renderIssues(result: ScanResult): string {
   const issues = result.issues.length
     ? result.issues
         .map(
-          (issue) => `<article class="issue ${issue.severity}">
+          (issue) => `<article class="issue-card ${issue.severity}">
   <h3>${escapeHtml(issue.title)}</h3>
   <p>${escapeHtml(issue.description)}</p>
-  <p class="tags"><span>${escapeHtml(issue.fixKind)}</span><span>${escapeHtml(issue.source)}</span></p>
+  <div class="tag-row"><span class="tag">${escapeHtml(issue.severity)}</span><span class="tag">${escapeHtml(issue.fixKind)}</span><span class="tag">${escapeHtml(issue.source)}</span></div>
 </article>`
         )
         .join('')
     : '<p class="empty">No issues found in the latest scan.</p>';
 
-  const audit = renderAudit(result);
-
-  return `<h1>One-Click Turbo</h1>
-${renderToolbar()}
-<section class="grid">
-  <article class="panel"><h2>Scan</h2><p>${result.issues.length} issues found. Last scan: ${escapeHtml(result.generatedAt)}.</p></article>
-  <article class="panel"><h2>Audit</h2><p>${result.audit.items.length} extensions, ${result.audit.knownHeavyCount} guidance matches.</p></article>
-  <article class="panel"><h2>Fix</h2><p>Workspace safe fixes are previewed before any setting is written.</p></article>
-</section>
-<section class="score">
-  <strong>${result.score}</strong>
-  <span class="grade">${escapeHtml(result.grade)}</span>
-</section>
-<section class="stats">
-  <div class="stat"><span>Extensions</span>${result.stats.totalExtensions}</div>
-  <div class="stat"><span>Active</span>${result.stats.activeExtensions}</div>
-  <div class="stat"><span>Always-on</span>${result.stats.alwaysOnExtensions}</div>
-  <div class="stat"><span>Known guidance</span>${result.stats.knownHeavyExtensions}</div>
-  <div class="stat"><span>Alternatives</span>${result.stats.alternativeSuggestions}</div>
-  <div class="stat"><span>Overlap hints</span>${result.stats.redundancyHints}</div>
-  <div class="stat"><span>Heap</span>${result.stats.extensionHostHeapMB} MB</div>
-</section>
-${viewMode === 'audit' ? audit : ''}
-<h2>Issues (${result.issues.length})</h2>
-<section class="issues">${issues}</section>
-${viewMode === 'scan' ? audit : ''}`;
+  return `<section>
+  <h2>Issues (${result.issues.length})</h2>
+  <div class="issue-list">${issues}</div>
+</section>`;
 }
 
 function renderAudit(result: ScanResult): string {
   const categoryCounts = Object.entries(result.audit.categoryCounts)
     .filter(([, count]) => count > 0)
-    .map(([category, count]) => `<div class="stat"><span>${escapeHtml(categoryLabels[category as ExtensionCategory] ?? category)}</span>${count}</div>`)
+    .map(([category, count]) => `<article class="metric-card"><span>${escapeHtml(categoryLabels[category as ExtensionCategory] ?? category)}</span><strong>${count}</strong></article>`)
     .join('');
 
   const auditItems = result.audit.items
@@ -143,9 +175,9 @@ function renderAudit(result: ScanResult): string {
     .sort((left, right) => left.category.localeCompare(right.category) || left.displayName.localeCompare(right.displayName))
     .map((item) => {
       const tags = [
-        `<span>${escapeHtml(categoryLabels[item.category] ?? item.category)}</span>`,
-        item.knowledgeBaseMatches.some((match) => match.kind === 'known-heavy') ? '<span>known guidance</span>' : '',
-        item.alternative ? '<span>alternative</span>' : ''
+        `<span class="tag">${escapeHtml(categoryLabels[item.category] ?? item.category)}</span>`,
+        item.knowledgeBaseMatches.some((match) => match.kind === 'known-heavy') ? '<span class="tag">known guidance</span>' : '',
+        item.alternative ? '<span class="tag">alternative</span>' : ''
       ]
         .filter(Boolean)
         .join('');
@@ -157,25 +189,31 @@ function renderAudit(result: ScanResult): string {
         .filter(Boolean)
         .join(' ');
 
-      return `<article class="issue info">
+      return `<article class="issue-card info">
   <h3>${escapeHtml(item.displayName || item.id)}</h3>
   <p>${escapeHtml(item.id)}${item.publisher ? ` by ${escapeHtml(item.publisher)}` : ''}</p>
-  <p>${escapeHtml(descriptions || item.description || 'No V0.4 audit guidance for this extension.')}</p>
-  <p class="tags">${tags}</p>
+  <p>${escapeHtml(descriptions || item.description || 'No V0.7 audit guidance for this extension.')}</p>
+  <div class="tag-row">${tags}</div>
 </article>`;
     })
     .join('');
 
   const redundancy = result.audit.redundancyHints.length
     ? result.audit.redundancyHints
-        .map((hint) => `<article class="issue info"><h3>Overlap hint</h3><p>${escapeHtml(hint.safeWording)}</p></article>`)
+        .map((hint) => `<article class="issue-card info"><h3>Overlap hint</h3><p>${escapeHtml(hint.safeWording)}</p></article>`)
         .join('')
     : '<p class="empty">No redundancy hints found by current audit rules.</p>';
 
-  return `<h2>Extension Audit</h2>
-<section class="stats">${categoryCounts || '<div class="stat"><span>Categories</span>0</div>'}</section>
-<h3>Extensions (${result.audit.items.length})</h3>
-<section class="issues">${auditItems}</section>
-<h3>Redundancy Hints (${result.audit.redundancyHints.length})</h3>
-<section class="issues">${redundancy}</section>`;
+  return `<section>
+  <h2>Extension Audit</h2>
+  <div class="section-grid">${categoryCounts || '<article class="metric-card"><span>Categories</span><strong>0</strong></article>'}</div>
+  <h2>Extensions (${result.audit.items.length})</h2>
+  <div class="issue-list">${auditItems}</div>
+  <h2>Redundancy Hints (${result.audit.redundancyHints.length})</h2>
+  <div class="issue-list">${redundancy}</div>
+</section>`;
+}
+
+function clampScore(score: number): number {
+  return Math.max(0, Math.min(100, score));
 }

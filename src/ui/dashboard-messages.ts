@@ -1,11 +1,18 @@
-export type DashboardCommand = 'runFullScan' | 'quickAudit' | 'applySafeFixes' | 'undoLastFix' | 'exportReport';
+export type DashboardCommand =
+  | 'runFullScan'
+  | 'quickAudit'
+  | 'applySafeFixes'
+  | 'undoLastFix'
+  | 'exportReport'
+  | 'openFullDashboard';
 
 const commandMap: Record<DashboardCommand, string> = {
   runFullScan: 'turbo.runFullScan',
   quickAudit: 'turbo.quickAudit',
   applySafeFixes: 'turbo.applySafeFixes',
   undoLastFix: 'turbo.undoLastFix',
-  exportReport: 'turbo.exportReport'
+  exportReport: 'turbo.exportReport',
+  openFullDashboard: 'turbo.showDashboard'
 };
 
 export function resolveDashboardCommand(message: unknown): string | undefined {

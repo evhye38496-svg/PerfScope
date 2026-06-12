@@ -1,12 +1,33 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { detectGitRiskForRoots, shouldApplyAfterGitWarning, shouldWarnForGitRisk } from '../../src/fix/git-risk';
+import { detectGitRiskForRoots, expandGitSearchRootIds, shouldApplyAfterGitWarning, shouldWarnForGitRisk } from '../../src/fix/git-risk';
 
 test('git risk returns likelyTracked when any root has a git directory', async () => {
   const risk = await detectGitRiskForRoots(['a', 'b'], async (root) => root === 'b');
 
   assert.equal(risk, 'likelyTracked');
   assert.equal(shouldWarnForGitRisk(risk), true);
+});
+
+test('git search roots include parents with bounded de-duplication', () => {
+  const roots = expandGitSearchRootIds(['repo/packages/app'], (root) => {
+    if (root === 'repo/packages/app') {
+      return 'repo/packages';
+    }
+    if (root === 'repo/packages') {
+      return 'repo';
+    }
+    return undefined;
+  });
+
+  assert.deepEqual(roots, ['repo/packages/app', 'repo/packages', 'repo']);
+});
+
+test('git risk treats any successful .git stat candidate as likely tracked', async () => {
+  const roots = expandGitSearchRootIds(['repo/packages/app'], (root) => (root === 'repo/packages/app' ? 'repo' : undefined));
+  const risk = await detectGitRiskForRoots(roots, async (root) => root === 'repo');
+
+  assert.equal(risk, 'likelyTracked');
 });
 
 test('git risk returns safe when no git directory exists', async () => {

@@ -8,6 +8,7 @@ export async function run(): Promise<void> {
   await extension.activate();
 
   const commands = await vscode.commands.getCommands(true);
+  assert.ok(commands.includes('turbo.dashboard.focus'), 'turbo.dashboard.focus should be contributed by the side bar view');
   assert.ok(commands.includes('turbo.runFullScan'), 'turbo.runFullScan should be registered');
   assert.ok(commands.includes('turbo.showDashboard'), 'turbo.showDashboard should be registered');
   assert.ok(commands.includes('turbo.quickAudit'), 'turbo.quickAudit should be registered');

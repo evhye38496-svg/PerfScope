@@ -164,10 +164,12 @@ export interface ApplyFixResult {
   skipped: number;
   failed: number;
   changeLog?: ChangeLog;
+  retainedPreviousChangeLog?: boolean;
 }
 
 export interface RollbackResult {
   restored: number;
   skipped: number;
   failed: number;
+  remainingChangeLog?: ChangeLog;
 }

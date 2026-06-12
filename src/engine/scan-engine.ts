@@ -2,8 +2,9 @@ import * as os from 'os';
 import * as vscode from 'vscode';
 import { knownHeavyExtensions } from '../data/core-db';
 import { auditExtensions } from './audit-engine';
-import { hasAlwaysOnActivation, hasStartupFinishedActivation, normalizeActivationEvents } from './activation-events';
+import { hasAlwaysOnActivation, hasStartupFinishedActivation } from './activation-events';
 import { analyzeConfiguration } from './config-checks';
+import { createExtensionReadIssue, snapshotExtension } from './extension-snapshot';
 import { sortIssues } from './issue-sort';
 import { calculateBreakdown, calculateTurboScore, gradeScore } from './score-calculator';
 import type { ConfigSnapshot, ExtensionAudit, ExtensionSnapshot, Issue, ScanResult, ScanStats } from '../types';
@@ -12,57 +13,24 @@ function toMB(bytes: number): number {
   return Math.round(bytes / 1024 / 1024);
 }
 
-function getExtensionDisplayName(extension: vscode.Extension<unknown>): string {
-  const packageJson = extension.packageJSON as { displayName?: unknown; name?: unknown };
-  if (typeof packageJson.displayName === 'string') {
-    return packageJson.displayName;
-  }
-
-  if (typeof packageJson.name === 'string') {
-    return packageJson.name;
-  }
-
-  return extension.id;
+interface ExtensionSnapshotResult {
+  extensions: ExtensionSnapshot[];
+  issues: Issue[];
 }
 
-function normalizeStringArray(raw: unknown): string[] {
-  if (!Array.isArray(raw)) {
-    return [];
+function snapshotExtensions(): ExtensionSnapshotResult {
+  const extensions: ExtensionSnapshot[] = [];
+  const issues: Issue[] = [];
+
+  for (const extension of vscode.extensions.all) {
+    try {
+      extensions.push(snapshotExtension(extension));
+    } catch (error) {
+      issues.push(createExtensionReadIssue(extension.id, error));
+    }
   }
 
-  return raw.filter((value): value is string => typeof value === 'string');
-}
-
-function normalizeExtensionKind(raw: unknown): string[] {
-  if (typeof raw === 'string') {
-    return [raw];
-  }
-
-  return normalizeStringArray(raw);
-}
-
-function snapshotExtensions(): ExtensionSnapshot[] {
-  return vscode.extensions.all.map((extension) => {
-    const packageJson = extension.packageJSON as {
-      activationEvents?: unknown;
-      categories?: unknown;
-      keywords?: unknown;
-      description?: unknown;
-      publisher?: unknown;
-      extensionKind?: unknown;
-    };
-    return {
-      id: extension.id,
-      displayName: getExtensionDisplayName(extension),
-      description: typeof packageJson.description === 'string' ? packageJson.description : '',
-      publisher: typeof packageJson.publisher === 'string' ? packageJson.publisher : '',
-      categories: normalizeStringArray(packageJson.categories),
-      keywords: normalizeStringArray(packageJson.keywords),
-      extensionKind: normalizeExtensionKind(packageJson.extensionKind),
-      isActive: extension.isActive,
-      activationEvents: normalizeActivationEvents(packageJson.activationEvents)
-    };
-  });
+  return { extensions, issues };
 }
 
 function snapshotConfiguration(): ConfigSnapshot {
@@ -148,7 +116,8 @@ function createRedundancyIssues(audit: ExtensionAudit): Issue[] {
 }
 
 export async function runScan(): Promise<ScanResult> {
-  const extensions = snapshotExtensions();
+  const extensionSnapshot = snapshotExtensions();
+  const extensions = extensionSnapshot.extensions;
   const audit = auditExtensions(extensions);
   const config = snapshotConfiguration();
   const memory = process.memoryUsage();
@@ -157,7 +126,8 @@ export async function runScan(): Promise<ScanResult> {
     ...createKnowledgeBaseIssues(audit),
     ...createAlternativeIssues(audit),
     ...createRedundancyIssues(audit),
-    ...analyzeConfiguration(config)
+    ...analyzeConfiguration(config),
+    ...extensionSnapshot.issues
   ]);
 
   const stats: ScanStats = {

@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import type { ScanResult } from '../types';
+import type { TurboUiState } from '../state/turbo-state';
 import { resolveDashboardCommand } from './dashboard-messages';
 import { renderDashboardHtml, type DashboardViewMode } from './dashboard-renderer';
+import { executeTurboCommand } from './turbo-command-dispatch';
 
 export class TurboDashboard {
   private panel: vscode.WebviewPanel | undefined;
   private lastResult: ScanResult | undefined;
+  private lastState: TurboUiState = {};
   private viewMode: DashboardViewMode = 'scan';
 
   constructor(private readonly extensionUri: vscode.Uri) {}
@@ -26,7 +29,7 @@ export class TurboDashboard {
       this.panel.webview.onDidReceiveMessage((message) => {
         const command = resolveDashboardCommand(message);
         if (command) {
-          executeDashboardCommand(command);
+          executeTurboCommand(command, 'dashboard');
         }
       });
 
@@ -41,6 +44,19 @@ export class TurboDashboard {
 
   update(result: ScanResult, viewMode: DashboardViewMode = this.viewMode): void {
     this.lastResult = result;
+    this.lastState = {
+      ...this.lastState,
+      lastResult: result
+    };
+    this.viewMode = viewMode;
+    if (this.panel) {
+      this.render();
+    }
+  }
+
+  updateState(state: TurboUiState, viewMode: DashboardViewMode = this.viewMode): void {
+    this.lastState = state;
+    this.lastResult = state.lastResult;
     this.viewMode = viewMode;
     if (this.panel) {
       this.render();
@@ -56,30 +72,9 @@ export class TurboDashboard {
       cspSource: this.panel.webview.cspSource,
       nonce: createNonce(),
       result: this.lastResult,
+      operation: this.lastState.lastOperation,
       viewMode: this.viewMode
     });
-  }
-}
-
-function executeDashboardCommand(command: string): void {
-  switch (command) {
-    case 'turbo.runFullScan':
-      void vscode.commands.executeCommand('turbo.runFullScan');
-      return;
-    case 'turbo.quickAudit':
-      void vscode.commands.executeCommand('turbo.quickAudit');
-      return;
-    case 'turbo.applySafeFixes':
-      void vscode.commands.executeCommand('turbo.applySafeFixes');
-      return;
-    case 'turbo.undoLastFix':
-      void vscode.commands.executeCommand('turbo.undoLastFix');
-      return;
-    case 'turbo.exportReport':
-      void vscode.commands.executeCommand('turbo.exportReport');
-      return;
-    default:
-      return;
   }
 }
 

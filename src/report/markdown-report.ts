@@ -153,11 +153,13 @@ function renderRedundancyHints(result: ScanResult): string {
 
 function renderChangeLog(changeLog: ChangeLog | undefined): string {
   if (!changeLog || changeLog.entries.length === 0) {
-    return 'No Turbo workspace fixes are currently recorded for undo.';
+    return 'No Turbo workspace fixes are currently recorded for undo. If the latest Apply Safe Fixes run wrote nothing, no new Change Log was created.';
   }
 
   return [
-    `Last workspace Change Log: ${text(new Date(changeLog.timestamp).toISOString())}`,
+    `Last successful workspace write Change Log: ${text(new Date(changeLog.timestamp).toISOString())}`,
+    '',
+    'This undo record belongs to the latest Turbo run that actually wrote Workspace settings. A later skipped or canceled fix run does not replace it.',
     '',
     '| Key | Target | Existed Before |',
     '| --- | --- | --- |',

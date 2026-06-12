@@ -8,11 +8,13 @@ import { applyWorkspaceFixes } from '../fix/settings-writer';
 import { rollbackWorkspaceChangeLog } from '../fix/rollback';
 import { TurboNotifier } from '../ui/notifications';
 import { TurboStatusBar } from '../ui/status-bar';
+import type { TurboOperationSummary } from '../state/turbo-state';
 
 export interface FixCommandDependencies {
   context: vscode.ExtensionContext;
   notifier: TurboNotifier;
   statusBar: TurboStatusBar;
+  recordOperation(operation: Omit<TurboOperationSummary, 'timestamp'>): void;
 }
 
 function inspectWorkspaceValue<T>(key: string): T | undefined {
@@ -42,6 +44,11 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
 
   if (proposals.length === 0) {
     deps.statusBar.setIdle();
+    deps.recordOperation({
+      kind: 'fix',
+      status: 'skipped',
+      message: 'No workspace safe fixes are available.'
+    });
     deps.notifier.showNoFixes();
     return;
   }
@@ -54,6 +61,11 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
 
   if (!selected || selected.length === 0) {
     deps.statusBar.setIdle();
+    deps.recordOperation({
+      kind: 'fix',
+      status: 'canceled',
+      message: 'Workspace safe fix preview was canceled.'
+    });
     return;
   }
 
@@ -70,6 +82,11 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
 
     if (choice !== 'Continue') {
       deps.statusBar.setIdle();
+      deps.recordOperation({
+        kind: 'fix',
+        status: 'canceled',
+        message: 'Workspace safe fixes were canceled before writing settings.'
+      });
       return;
     }
   }
@@ -82,9 +99,22 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
       selected.map((item) => item.proposal)
     );
     deps.statusBar.setIdle();
+    deps.recordOperation({
+      kind: 'fix',
+      status: result.failed > 0 ? 'failed' : result.applied > 0 ? 'success' : 'skipped',
+      message:
+        result.applied > 0
+          ? `Applied ${result.applied} workspace fixes; skipped ${result.skipped}; failed ${result.failed}.`
+          : `No workspace settings were written; skipped ${result.skipped}; failed ${result.failed}.`
+    });
     deps.notifier.showFixComplete(result);
   } catch (error) {
     deps.statusBar.setError('Fix failed');
+    deps.recordOperation({
+      kind: 'fix',
+      status: 'failed',
+      message: 'Workspace safe fixes failed before completion.'
+    });
     deps.notifier.showError('fix', error);
   }
 }
@@ -94,6 +124,11 @@ export async function undoLastFixCommand(deps: FixCommandDependencies): Promise<
 
   if (!changeLog) {
     deps.statusBar.setIdle();
+    deps.recordOperation({
+      kind: 'undo',
+      status: 'skipped',
+      message: 'No workspace fix Change Log was available.'
+    });
     deps.notifier.showNoChangeLog();
     return;
   }
@@ -103,9 +138,19 @@ export async function undoLastFixCommand(deps: FixCommandDependencies): Promise<
   try {
     const result = await rollbackWorkspaceChangeLog(deps.context, changeLog);
     deps.statusBar.setIdle();
+    deps.recordOperation({
+      kind: 'undo',
+      status: result.failed > 0 ? 'failed' : result.restored > 0 ? 'success' : 'skipped',
+      message: `Restored ${result.restored} workspace settings; skipped ${result.skipped}; failed ${result.failed}.`
+    });
     deps.notifier.showRollbackComplete(result);
   } catch (error) {
     deps.statusBar.setError('Undo failed');
+    deps.recordOperation({
+      kind: 'undo',
+      status: 'failed',
+      message: 'Undo failed before completion.'
+    });
     deps.notifier.showError('undo', error);
   }
 }

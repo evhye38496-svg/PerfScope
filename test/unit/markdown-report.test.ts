@@ -112,6 +112,8 @@ test('markdown report includes score, stats, issues, audit, and fix status', () 
   assert.match(report, /## Extension Audit/);
   assert.match(report, /Known Guidance and Alternatives/);
   assert.match(report, /Safe Fix and Undo Status/);
+  assert.match(report, /Last successful workspace write Change Log/);
+  assert.match(report, /latest Turbo run that actually wrote Workspace settings/);
   assert.match(report, /files\.watcherExclude/);
 });
 

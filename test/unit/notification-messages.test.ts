@@ -13,7 +13,32 @@ import {
 
 test('notification summaries are concise and stable', () => {
   assert.equal(fixCompleteMessage({ applied: 2, skipped: 1, failed: 0 }), 'Turbo fix complete - applied 2, skipped 1, failed 0.');
-  assert.equal(rollbackCompleteMessage({ restored: 1, skipped: 0, failed: 1 }), 'Turbo undo complete - restored 1, skipped 0, failed 1.');
+  assert.equal(
+    fixCompleteMessage({ applied: 0, skipped: 2, failed: 0, retainedPreviousChangeLog: true }),
+    'Turbo fix complete - applied 0, skipped 2, failed 0. No new Change Log was created; the previous undo record is still retained.'
+  );
+  assert.equal(
+    rollbackCompleteMessage({
+      restored: 1,
+      skipped: 1,
+      failed: 0,
+      remainingChangeLog: {
+        workspaceId: 'workspace',
+        timestamp: 1,
+        entries: [
+          {
+            key: 'search.exclude',
+            target: 'workspace',
+            existedBefore: false,
+            newValue: {},
+            workspaceId: 'workspace',
+            timestamp: 1
+          }
+        ]
+      }
+    }),
+    'Turbo undo complete - restored 1, skipped 1, failed 0. 1 Change Log entries remain for a future undo attempt.'
+  );
   assert.equal(exportCompleteMessage('C:\\report.md'), 'Turbo report exported - C:\\report.md');
   assert.equal(exportCanceledMessage(), 'Turbo report export canceled.');
   assert.equal(noReportMessage(), 'Turbo: Run a scan before exporting a Markdown report.');

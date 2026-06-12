@@ -2,7 +2,7 @@
   "name": "turbo-vscode",
   "displayName": "One-Click Turbo",
   "description": "VS Code performance health scanner and optimization guide.",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "publisher": "Evhye",
   "license": "MIT",
   "private": true,
@@ -24,9 +24,28 @@
     "onCommand:turbo.exportReport",
     "onCommand:turbo.applySafeFixes",
     "onCommand:turbo.undoLastFix",
-    "onCommand:turbo.purge"
+    "onCommand:turbo.purge",
+    "onView:turbo.dashboard"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "turbo",
+          "title": "One-Click Turbo",
+          "icon": "resources/turbo.svg"
+        }
+      ]
+    },
+    "views": {
+      "turbo": [
+        {
+          "type": "webview",
+          "id": "turbo.dashboard",
+          "name": "Dashboard"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "turbo.runFullScan",

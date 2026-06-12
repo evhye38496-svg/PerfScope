@@ -9,11 +9,17 @@ export function auditCompleteMessage(result: ScanResult): string {
 }
 
 export function fixCompleteMessage(result: ApplyFixResult): string {
-  return `Turbo fix complete - applied ${result.applied}, skipped ${result.skipped}, failed ${result.failed}.`;
+  const retained = result.retainedPreviousChangeLog
+    ? ' No new Change Log was created; the previous undo record is still retained.'
+    : '';
+  return `Turbo fix complete - applied ${result.applied}, skipped ${result.skipped}, failed ${result.failed}.${retained}`;
 }
 
 export function rollbackCompleteMessage(result: RollbackResult): string {
-  return `Turbo undo complete - restored ${result.restored}, skipped ${result.skipped}, failed ${result.failed}.`;
+  const remaining = result.remainingChangeLog
+    ? ` ${result.remainingChangeLog.entries.length} Change Log entries remain for a future undo attempt.`
+    : '';
+  return `Turbo undo complete - restored ${result.restored}, skipped ${result.skipped}, failed ${result.failed}.${remaining}`;
 }
 
 export function exportCompleteMessage(filePath: string): string {
