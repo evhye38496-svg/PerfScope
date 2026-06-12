@@ -13,5 +13,6 @@ export async function run(): Promise<void> {
   assert.ok(commands.includes('turbo.quickAudit'), 'turbo.quickAudit should be registered');
 
   await vscode.commands.executeCommand('turbo.runFullScan');
+  await vscode.commands.executeCommand('turbo.quickAudit');
   assert.ok(extension.isActive, 'extension should be active after running a Turbo command');
 }

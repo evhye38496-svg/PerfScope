@@ -10,6 +10,8 @@ function baseStats(overrides: Partial<ScanStats> = {}): ScanStats {
     alwaysOnExtensions: 0,
     startupFinishedExtensions: 0,
     knownHeavyExtensions: 0,
+    alternativeSuggestions: 0,
+    redundancyHints: 0,
     extensionHostHeapMB: 120,
     extensionHostRssMB: 180,
     osFreeMemoryMB: 8192,

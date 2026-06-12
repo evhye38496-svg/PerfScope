@@ -2,6 +2,17 @@ export type IssueSeverity = 'critical' | 'warning' | 'info';
 
 export type FixKind = 'safe-auto-fix' | 'manual-guided-fix' | 'suggestion-only';
 
+export type ExtensionCategory =
+  | 'theme-icon'
+  | 'lint-format'
+  | 'language-support'
+  | 'ai-completion'
+  | 'git-version-control'
+  | 'snippets'
+  | 'utility-productivity'
+  | 'build-task-debug'
+  | 'unknown';
+
 export interface Issue {
   id: string;
   title: string;
@@ -24,6 +35,8 @@ export interface ScanStats {
   alwaysOnExtensions: number;
   startupFinishedExtensions: number;
   knownHeavyExtensions: number;
+  alternativeSuggestions: number;
+  redundancyHints: number;
   extensionHostHeapMB: number;
   extensionHostRssMB: number;
   osFreeMemoryMB: number;
@@ -36,11 +49,17 @@ export interface ScanResult {
   stats: ScanStats;
   breakdown: ScoreBreakdown;
   issues: Issue[];
+  audit: ExtensionAudit;
 }
 
 export interface ExtensionSnapshot {
   id: string;
   displayName: string;
+  description: string;
+  publisher: string;
+  categories: string[];
+  keywords: string[];
+  extensionKind: string[];
   isActive: boolean;
   activationEvents: string[];
 }
@@ -58,4 +77,48 @@ export interface KnownExtensionRecord {
   confidence: 'low' | 'medium' | 'high';
   lastVerified: string;
   severity: IssueSeverity;
+  typicalMemoryMB?: string;
+}
+
+export interface AlternativeSuggestion {
+  extensionId: string;
+  alternative: string;
+  safeWording: string;
+  confidence: 'low' | 'medium' | 'high';
+  lastVerified: string;
+}
+
+export interface KnowledgeBaseMatch {
+  kind: 'known-heavy' | 'lightweight-alternative';
+  safeWording: string;
+  confidence: 'low' | 'medium' | 'high';
+  lastVerified: string;
+}
+
+export interface ExtensionAuditItem {
+  id: string;
+  displayName: string;
+  publisher: string;
+  description: string;
+  category: ExtensionCategory;
+  isActive: boolean;
+  activationEvents: string[];
+  knowledgeBaseMatches: KnowledgeBaseMatch[];
+  alternative?: AlternativeSuggestion;
+}
+
+export interface RedundancyHint {
+  id: string;
+  extensionIds: string[];
+  category: ExtensionCategory;
+  languageScope: string;
+  safeWording: string;
+}
+
+export interface ExtensionAudit {
+  items: ExtensionAuditItem[];
+  categoryCounts: Record<ExtensionCategory, number>;
+  knownHeavyCount: number;
+  alternativeCount: number;
+  redundancyHints: RedundancyHint[];
 }

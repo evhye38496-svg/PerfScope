@@ -1,11 +1,12 @@
 import * as os from 'os';
 import * as vscode from 'vscode';
 import { knownHeavyExtensions } from '../data/core-db';
+import { auditExtensions } from './audit-engine';
 import { hasAlwaysOnActivation, hasStartupFinishedActivation, normalizeActivationEvents } from './activation-events';
 import { analyzeConfiguration } from './config-checks';
 import { sortIssues } from './issue-sort';
 import { calculateBreakdown, calculateTurboScore, gradeScore } from './score-calculator';
-import type { ConfigSnapshot, ExtensionSnapshot, Issue, ScanResult, ScanStats } from '../types';
+import type { ConfigSnapshot, ExtensionAudit, ExtensionSnapshot, Issue, ScanResult, ScanStats } from '../types';
 
 function toMB(bytes: number): number {
   return Math.round(bytes / 1024 / 1024);
@@ -24,12 +25,40 @@ function getExtensionDisplayName(extension: vscode.Extension<unknown>): string {
   return extension.id;
 }
 
+function normalizeStringArray(raw: unknown): string[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.filter((value): value is string => typeof value === 'string');
+}
+
+function normalizeExtensionKind(raw: unknown): string[] {
+  if (typeof raw === 'string') {
+    return [raw];
+  }
+
+  return normalizeStringArray(raw);
+}
+
 function snapshotExtensions(): ExtensionSnapshot[] {
   return vscode.extensions.all.map((extension) => {
-    const packageJson = extension.packageJSON as { activationEvents?: unknown };
+    const packageJson = extension.packageJSON as {
+      activationEvents?: unknown;
+      categories?: unknown;
+      keywords?: unknown;
+      description?: unknown;
+      publisher?: unknown;
+      extensionKind?: unknown;
+    };
     return {
       id: extension.id,
       displayName: getExtensionDisplayName(extension),
+      description: typeof packageJson.description === 'string' ? packageJson.description : '',
+      publisher: typeof packageJson.publisher === 'string' ? packageJson.publisher : '',
+      categories: normalizeStringArray(packageJson.categories),
+      keywords: normalizeStringArray(packageJson.keywords),
+      extensionKind: normalizeExtensionKind(packageJson.extensionKind),
       isActive: extension.isActive,
       activationEvents: normalizeActivationEvents(packageJson.activationEvents)
     };
@@ -80,8 +109,8 @@ function createActivationIssues(extensions: readonly ExtensionSnapshot[]): Issue
   return issues;
 }
 
-function createKnowledgeBaseIssues(extensions: readonly ExtensionSnapshot[]): Issue[] {
-  const installedIds = new Set(extensions.map((extension) => extension.id.toLowerCase()));
+function createKnowledgeBaseIssues(audit: ExtensionAudit): Issue[] {
+  const installedIds = new Set(audit.items.map((extension) => extension.id.toLowerCase()));
   return knownHeavyExtensions
     .filter((record) => installedIds.has(record.id.toLowerCase()))
     .map<Issue>((record) => ({
@@ -94,13 +123,40 @@ function createKnowledgeBaseIssues(extensions: readonly ExtensionSnapshot[]): Is
     }));
 }
 
+function createAlternativeIssues(audit: ExtensionAudit): Issue[] {
+  return audit.items
+    .filter((item) => item.alternative)
+    .map<Issue>((item) => ({
+      id: `kb.alternative.${item.id}`,
+      title: `${item.displayName} has an optional lightweight alternative`,
+      description: `${item.alternative?.safeWording} Alternative: ${item.alternative?.alternative}.`,
+      severity: 'info',
+      fixKind: 'suggestion-only',
+      source: 'knowledge-base'
+    }));
+}
+
+function createRedundancyIssues(audit: ExtensionAudit): Issue[] {
+  return audit.redundancyHints.map<Issue>((hint) => ({
+    id: hint.id,
+    title: 'Possible overlapping extension behavior',
+    description: hint.safeWording,
+    severity: 'info',
+    fixKind: 'suggestion-only',
+    source: 'extension'
+  }));
+}
+
 export async function runScan(): Promise<ScanResult> {
   const extensions = snapshotExtensions();
+  const audit = auditExtensions(extensions);
   const config = snapshotConfiguration();
   const memory = process.memoryUsage();
   const issues = sortIssues([
     ...createActivationIssues(extensions),
-    ...createKnowledgeBaseIssues(extensions),
+    ...createKnowledgeBaseIssues(audit),
+    ...createAlternativeIssues(audit),
+    ...createRedundancyIssues(audit),
     ...analyzeConfiguration(config)
   ]);
 
@@ -109,7 +165,9 @@ export async function runScan(): Promise<ScanResult> {
     activeExtensions: extensions.filter((extension) => extension.isActive).length,
     alwaysOnExtensions: extensions.filter((extension) => hasAlwaysOnActivation(extension.activationEvents)).length,
     startupFinishedExtensions: extensions.filter((extension) => hasStartupFinishedActivation(extension.activationEvents)).length,
-    knownHeavyExtensions: issues.filter((issue) => issue.id.startsWith('kb.knownHeavy.')).length,
+    knownHeavyExtensions: audit.knownHeavyCount,
+    alternativeSuggestions: audit.alternativeCount,
+    redundancyHints: audit.redundancyHints.length,
     extensionHostHeapMB: toMB(memory.heapUsed),
     extensionHostRssMB: toMB(memory.rss),
     osFreeMemoryMB: toMB(os.freemem())
@@ -124,6 +182,7 @@ export async function runScan(): Promise<ScanResult> {
     generatedAt: new Date().toISOString(),
     stats,
     breakdown,
-    issues
+    issues,
+    audit
   };
 }

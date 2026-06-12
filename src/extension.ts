@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { runFullScanCommand } from './commands/scan';
+import { quickAuditCommand, runFullScanCommand } from './commands/scan';
 import type { ScanResult } from './types';
 import { TurboDashboard } from './ui/dashboard';
 import { TurboStatusBar } from './ui/status-bar';
@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext): void {
       dashboard.show();
     }),
     vscode.commands.registerCommand('turbo.quickAudit', () =>
-      runFullScanCommand({
+      quickAuditCommand({
         dashboard,
         statusBar,
         setLastResult(result) {
