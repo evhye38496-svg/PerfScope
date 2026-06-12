@@ -122,3 +122,52 @@ export interface ExtensionAudit {
   alternativeCount: number;
   redundancyHints: RedundancyHint[];
 }
+
+export type FixTarget = 'workspace';
+
+export interface FixProposal {
+  id: string;
+  key: 'files.watcherExclude' | 'search.exclude' | 'search.followSymlinks';
+  target: FixTarget;
+  title: string;
+  description: string;
+  currentValue: unknown;
+  proposedValue: unknown;
+  addedKeys: string[];
+}
+
+export interface FixPreviewItem {
+  label: string;
+  description: string;
+  detail: string;
+  proposal: FixProposal;
+}
+
+export interface ChangeLogEntry {
+  key: FixProposal['key'];
+  target: FixTarget;
+  existedBefore: boolean;
+  previousValue?: unknown;
+  newValue: unknown;
+  workspaceId: string;
+  timestamp: number;
+}
+
+export interface ChangeLog {
+  workspaceId: string;
+  timestamp: number;
+  entries: ChangeLogEntry[];
+}
+
+export interface ApplyFixResult {
+  applied: number;
+  skipped: number;
+  failed: number;
+  changeLog?: ChangeLog;
+}
+
+export interface RollbackResult {
+  restored: number;
+  skipped: number;
+  failed: number;
+}

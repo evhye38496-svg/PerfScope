@@ -2,7 +2,7 @@
   "name": "turbo-vscode",
   "displayName": "One-Click Turbo",
   "description": "VS Code performance health scanner and optimization guide.",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "publisher": "Evhye",
   "license": "MIT",
   "private": true,

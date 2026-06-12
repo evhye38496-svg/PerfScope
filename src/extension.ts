@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { applySafeFixesCommand, undoLastFixCommand } from './commands/fix';
 import { quickAuditCommand, runFullScanCommand } from './commands/scan';
 import type { ScanResult } from './types';
 import { TurboDashboard } from './ui/dashboard';
@@ -40,12 +41,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('turbo.exportReport', () => {
       void vscode.window.showInformationMessage('Turbo: Export Report is planned for V0.2+.');
     }),
-    vscode.commands.registerCommand('turbo.applySafeFixes', () => {
-      void vscode.window.showInformationMessage('Turbo: Apply Safe Fixes is not implemented in V0.1. This build is read-only.');
-    }),
-    vscode.commands.registerCommand('turbo.undoLastFix', () => {
-      void vscode.window.showInformationMessage('Turbo: Undo Last Fix is not implemented in V0.1 because no fixes are written.');
-    }),
+    vscode.commands.registerCommand('turbo.applySafeFixes', () => applySafeFixesCommand(context)),
+    vscode.commands.registerCommand('turbo.undoLastFix', () => undoLastFixCommand(context)),
     vscode.commands.registerCommand('turbo.purge', () => {
       void vscode.window.showInformationMessage('Turbo: Purge is planned for a later milestone.');
     })

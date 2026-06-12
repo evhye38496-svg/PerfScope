@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0
+
+- Added Workspace safe fixes for `files.watcherExclude`, `search.exclude`, and `search.followSymlinks`.
+- Added QuickPick preview before applying fixes.
+- Added workspace Change Log storage and `Turbo: Undo Last Fix` rollback.
+- Added unit and VS Code integration coverage for V0.3 fix behavior.
+
+## 0.2.0
+
+- Added extension audit data model and offline Core DB matching.
+- Added extension categorization, known-heavy hints, alternatives, and redundancy hints.
+- Added Dashboard audit view and `Turbo: Quick Extension Audit`.
+
 ## 0.1.0
 
 - Initial VS Code extension skeleton.
