@@ -10,6 +10,7 @@ test('status bar presents active states with spinner text', () => {
   assert.equal(createStatusPresentation({ kind: 'auditing' }).text, '$(sync~spin) Audit');
   assert.equal(createStatusPresentation({ kind: 'fixing' }).text, '$(sync~spin) Fix');
   assert.equal(createStatusPresentation({ kind: 'undoing' }).text, '$(sync~spin) Undo');
+  assert.equal(createStatusPresentation({ kind: 'exporting' }).text, '$(sync~spin) Export');
 });
 
 test('status bar presents score and error states', () => {

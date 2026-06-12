@@ -75,6 +75,9 @@ function executeDashboardCommand(command: string): void {
     case 'turbo.undoLastFix':
       void vscode.commands.executeCommand('turbo.undoLastFix');
       return;
+    case 'turbo.exportReport':
+      void vscode.commands.executeCommand('turbo.exportReport');
+      return;
     default:
       return;
   }

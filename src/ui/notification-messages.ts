@@ -16,6 +16,18 @@ export function rollbackCompleteMessage(result: RollbackResult): string {
   return `Turbo undo complete - restored ${result.restored}, skipped ${result.skipped}, failed ${result.failed}.`;
 }
 
+export function exportCompleteMessage(filePath: string): string {
+  return `Turbo report exported - ${filePath}`;
+}
+
+export function exportCanceledMessage(): string {
+  return 'Turbo report export canceled.';
+}
+
+export function noReportMessage(): string {
+  return 'Turbo: Run a scan before exporting a Markdown report.';
+}
+
 export function noFixesMessage(): string {
   return 'Turbo: No workspace safe fixes are available.';
 }

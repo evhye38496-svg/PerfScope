@@ -70,7 +70,7 @@ function scanResult(): ScanResult {
   };
 }
 
-test('dashboard renders V0.4 command buttons', () => {
+test('dashboard renders V0.5 command buttons', () => {
   const html = renderDashboardHtml({
     cspSource: 'vscode-resource:',
     nonce: 'abc',
@@ -81,6 +81,7 @@ test('dashboard renders V0.4 command buttons', () => {
   assert.match(html, /data-command="quickAudit"/);
   assert.match(html, /data-command="applySafeFixes"/);
   assert.match(html, /data-command="undoLastFix"/);
+  assert.match(html, /data-command="exportReport"/);
 });
 
 test('dashboard escapes scan and manifest strings', () => {

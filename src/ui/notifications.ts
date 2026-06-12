@@ -3,9 +3,12 @@ import type { ApplyFixResult, RollbackResult, ScanResult } from '../types';
 import {
   auditCompleteMessage,
   errorMessage,
+  exportCanceledMessage,
+  exportCompleteMessage,
   fixCompleteMessage,
   noChangeLogMessage,
   noFixesMessage,
+  noReportMessage,
   rollbackCompleteMessage,
   scanCompleteMessage
 } from './notification-messages';
@@ -28,6 +31,18 @@ export class TurboNotifier {
 
   showRollbackComplete(result: RollbackResult): void {
     void vscode.window.showInformationMessage(rollbackCompleteMessage(result), RUN_SCAN_AGAIN).then(runAction);
+  }
+
+  showExportComplete(filePath: string): void {
+    void vscode.window.showInformationMessage(exportCompleteMessage(filePath), OPEN_DASHBOARD).then(runAction);
+  }
+
+  showExportCanceled(): void {
+    void vscode.window.showInformationMessage(exportCanceledMessage());
+  }
+
+  showNoReport(): void {
+    void vscode.window.showInformationMessage(noReportMessage(), RUN_SCAN_AGAIN).then(runAction);
   }
 
   showNoFixes(): void {

@@ -40,6 +40,10 @@ export class TurboStatusBar {
     this.apply({ kind: 'undoing' });
   }
 
+  setExporting(): void {
+    this.apply({ kind: 'exporting' });
+  }
+
   setError(message: string): void {
     this.apply({ kind: 'error', message });
   }

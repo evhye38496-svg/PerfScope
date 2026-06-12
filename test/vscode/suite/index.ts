@@ -11,9 +11,11 @@ export async function run(): Promise<void> {
   assert.ok(commands.includes('turbo.runFullScan'), 'turbo.runFullScan should be registered');
   assert.ok(commands.includes('turbo.showDashboard'), 'turbo.showDashboard should be registered');
   assert.ok(commands.includes('turbo.quickAudit'), 'turbo.quickAudit should be registered');
+  assert.ok(commands.includes('turbo.exportReport'), 'turbo.exportReport should be registered');
   assert.ok(commands.includes('turbo.applySafeFixes'), 'turbo.applySafeFixes should be registered');
   assert.ok(commands.includes('turbo.undoLastFix'), 'turbo.undoLastFix should be registered');
 
+  await vscode.commands.executeCommand('turbo.exportReport');
   await vscode.commands.executeCommand('turbo.showDashboard');
   await vscode.commands.executeCommand('turbo.runFullScan');
   await vscode.commands.executeCommand('turbo.quickAudit');

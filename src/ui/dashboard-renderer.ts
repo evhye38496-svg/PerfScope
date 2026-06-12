@@ -77,6 +77,7 @@ function renderToolbar(): string {
   <button type="button" data-command="quickAudit">Quick Audit</button>
   <button type="button" data-command="applySafeFixes">Apply Safe Fixes</button>
   <button type="button" data-command="undoLastFix">Undo Last Fix</button>
+  <button type="button" data-command="exportReport">Export Report</button>
 </nav>`;
 }
 

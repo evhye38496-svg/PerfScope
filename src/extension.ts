@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { exportReportCommand } from './commands/export-report';
 import { applySafeFixesCommand, undoLastFixCommand } from './commands/fix';
 import { quickAuditCommand, runFullScanCommand } from './commands/scan';
 import type { ScanResult } from './types';
@@ -42,9 +43,16 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       })
     ),
-    vscode.commands.registerCommand('turbo.exportReport', () => {
-      void vscode.window.showInformationMessage('Turbo: Export Report is planned for V0.2+.');
-    }),
+    vscode.commands.registerCommand('turbo.exportReport', () =>
+      exportReportCommand({
+        context,
+        getLastResult() {
+          return lastResult;
+        },
+        notifier,
+        statusBar
+      })
+    ),
     vscode.commands.registerCommand('turbo.applySafeFixes', () => applySafeFixesCommand({ context, notifier, statusBar })),
     vscode.commands.registerCommand('turbo.undoLastFix', () => undoLastFixCommand({ context, notifier, statusBar })),
     vscode.commands.registerCommand('turbo.purge', () => {

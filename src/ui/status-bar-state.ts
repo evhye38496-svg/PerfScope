@@ -1,4 +1,4 @@
-export type TurboStatusKind = 'idle' | 'scanning' | 'auditing' | 'fixing' | 'undoing' | 'score' | 'error';
+export type TurboStatusKind = 'idle' | 'scanning' | 'auditing' | 'fixing' | 'undoing' | 'exporting' | 'score' | 'error';
 
 export interface TurboStatusSnapshot {
   kind: TurboStatusKind;
@@ -34,6 +34,11 @@ export function createStatusPresentation(snapshot: TurboStatusSnapshot): TurboSt
       return {
         text: '$(sync~spin) Undo',
         tooltip: 'One-Click Turbo: last workspace fix is being undone'
+      };
+    case 'exporting':
+      return {
+        text: '$(sync~spin) Export',
+        tooltip: 'One-Click Turbo: Markdown report is being exported'
       };
     case 'score':
       return {

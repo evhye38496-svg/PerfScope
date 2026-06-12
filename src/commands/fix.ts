@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import type { FixPreviewItem, FixProposal } from '../types';
 import { createWorkspaceFixProposals, type WorkspaceConfigValues } from '../fix/fix-engine';
 import { loadWorkspaceChangeLog } from '../fix/change-log-manager';
+import { detectWorkspaceGitRisk } from '../fix/git-tracker';
+import { shouldWarnForGitRisk } from '../fix/git-risk';
 import { applyWorkspaceFixes } from '../fix/settings-writer';
 import { rollbackWorkspaceChangeLog } from '../fix/rollback';
 import { TurboNotifier } from '../ui/notifications';
@@ -53,6 +55,23 @@ export async function applySafeFixesCommand(deps: FixCommandDependencies): Promi
   if (!selected || selected.length === 0) {
     deps.statusBar.setIdle();
     return;
+  }
+
+  const gitRisk = await detectWorkspaceGitRisk();
+  if (shouldWarnForGitRisk(gitRisk)) {
+    const choice = await vscode.window.showWarningMessage(
+      gitRisk === 'likelyTracked'
+        ? 'Turbo will modify Workspace settings. This workspace appears to be a Git repository, so .vscode/settings.json changes may be committed. Continue?'
+        : 'Turbo could not verify the Git status of this workspace. Workspace settings changes may be committed if this folder is tracked. Continue?',
+      { modal: true },
+      'Continue',
+      'Cancel'
+    );
+
+    if (choice !== 'Continue') {
+      deps.statusBar.setIdle();
+      return;
+    }
   }
 
   deps.statusBar.setFixing();

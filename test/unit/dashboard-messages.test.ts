@@ -7,6 +7,7 @@ test('dashboard message allowlist resolves only supported Turbo commands', () =>
   assert.equal(resolveDashboardCommand({ command: 'quickAudit' }), 'turbo.quickAudit');
   assert.equal(resolveDashboardCommand({ command: 'applySafeFixes' }), 'turbo.applySafeFixes');
   assert.equal(resolveDashboardCommand({ command: 'undoLastFix' }), 'turbo.undoLastFix');
+  assert.equal(resolveDashboardCommand({ command: 'exportReport' }), 'turbo.exportReport');
 });
 
 test('dashboard message allowlist ignores unknown or malformed messages', () => {

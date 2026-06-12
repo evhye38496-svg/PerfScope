@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+
+- Added Git repository warning before applying Workspace safe fixes.
+- Implemented `Turbo: Export Report (Markdown)` with Save Dialog export.
+- Added Dashboard export action and Webview allowlist support.
+- Added Markdown report, Git risk, and export notification tests.
+
 ## 0.4.0
 
 - Added Dashboard command buttons for scan, audit, safe fixes, and undo.
