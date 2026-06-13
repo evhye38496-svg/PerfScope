@@ -3,7 +3,7 @@
 **One-click health check for your VS Code performance.** Scan → Score → Fix, all in under 30 seconds.
 
 [![Marketplace](https://img.shields.io/badge/Marketplace-v1.0-blue)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
-[![Installs](https://img.shields.io/badge/installs-xxx-green)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/Evhye.turbo-vscode?label=installs&color=green)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
 
 ## Why Do You Need It?
 
