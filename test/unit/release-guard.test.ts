@@ -24,7 +24,7 @@ function packageJson(overrides = {}) {
     bugs: { url: 'https://github.com/example/one-click-turbo/issues' },
     homepage: 'https://github.com/example/one-click-turbo',
     scripts: {
-      'package:vsix': 'vsce package --out dist/turbo-vscode-1.0.0.vsix'
+      'package:vsix': 'vsce package --out dist/one-click-turbo-1.0.0.vsix'
     },
     ...overrides
   };

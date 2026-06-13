@@ -1,5 +1,5 @@
 {
-  "name": "turbo-vscode",
+  "name": "one-click-turbo",
   "displayName": "One-Click Turbo",
   "description": "VS Code performance health scanner and optimization guide - analyze extensions, find slowdown causes, and apply safe workspace fixes with one click.",
   "version": "1.0.0",
@@ -126,7 +126,7 @@
     "test:vscode": "npm run compile && node ./out/test/vscode/runTest.js",
     "vscode:prepublish": "npm run compile",
     "package": "npm run compile",
-    "package:vsix": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/turbo-vscode-1.0.0.vsix",
+    "package:vsix": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/one-click-turbo-1.0.0.vsix",
     "verify:release": "npm run compile && node scripts/verify-release.js && npm test && npm run test:vscode && npm run package:vsix"
   },
   "dependencies": {

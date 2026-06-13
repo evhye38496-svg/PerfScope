@@ -2,10 +2,10 @@
 
 **One-click health check for your VS Code performance.** Scan → Score → Fix, all in under 30 seconds.
 
-[![Marketplace](https://img.shields.io/badge/Marketplace-v1.0-blue)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/Evhye.turbo-vscode?label=installs&color=green)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
+[![Marketplace](https://img.shields.io/badge/Marketplace-v1.0-blue)](https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/Evhye.one-click-turbo?label=installs&color=green)](https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo)
 
-**Install:** [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode) · **Source:** [GitHub](https://github.com/evhye38496-svg/one-click-turbo) · **Feedback:** [Report an issue](https://github.com/evhye38496-svg/one-click-turbo/issues)
+**Install:** [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo) · **Source:** [GitHub](https://github.com/evhye38496-svg/one-click-turbo) · **Feedback:** [Report an issue](https://github.com/evhye38496-svg/one-click-turbo/issues)
 
 ![One-Click Turbo Dashboard](https://raw.githubusercontent.com/evhye38496-svg/one-click-turbo/main/docs/assets/turbo-score-dashboard.png)
 
@@ -95,12 +95,12 @@ After packaging, install the generated VSIX from VS Code:
 
 1. Open the Command Palette.
 2. Run `Extensions: Install from VSIX...`.
-3. Select `dist/turbo-vscode-1.0.0.vsix`.
+3. Select `dist/one-click-turbo-1.0.0.vsix`.
 
 You can also install from a terminal:
 
 ```powershell
-code --install-extension dist/turbo-vscode-1.0.0.vsix
+code --install-extension dist/one-click-turbo-1.0.0.vsix
 ```
 
 ## Development
@@ -130,7 +130,7 @@ npm run package:vsix
 This writes:
 
 ```text
-dist/turbo-vscode-1.0.0.vsix
+dist/one-click-turbo-1.0.0.vsix
 ```
 
 ## Release Checklist

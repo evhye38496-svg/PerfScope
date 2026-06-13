@@ -33,7 +33,7 @@ Avoid claims that cannot be proven:
 - `npm run compile` passes.
 - `npm test` passes.
 - `npm run test:vscode` passes.
-- `npm run package:vsix` creates `dist/turbo-vscode-1.0.0.vsix`.
+- `npm run package:vsix` creates `dist/one-click-turbo-1.0.0.vsix`.
 - A clean VS Code profile can install and run the VSIX.
 
 ## GitHub Repository Setup
@@ -47,7 +47,7 @@ A 30-second VS Code performance health scanner: audit extensions, score your set
 Website:
 
 ```text
-https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 ```
 
 Topics:
@@ -126,7 +126,7 @@ GIF script:
 - Confirm badges do not show broken state.
 - Confirm the icon looks good at small size.
 - Create GitHub release `v1.0.0`.
-- Attach `dist/turbo-vscode-1.0.0.vsix`.
+- Attach `dist/one-click-turbo-1.0.0.vsix`.
 - Post the launch announcement.
 - Save baseline metrics.
 

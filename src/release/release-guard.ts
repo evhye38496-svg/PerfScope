@@ -55,8 +55,8 @@ export function validateRelease(input: ReleaseGuardInput): ReleaseGuardResult {
   }
 
   const packageScript = packageJson.scripts?.['package:vsix'];
-  if (typeof packageScript !== 'string' || !packageScript.includes('dist/turbo-vscode-1.0.0.vsix')) {
-    errors.push('package:vsix must output dist/turbo-vscode-1.0.0.vsix.');
+  if (typeof packageScript !== 'string' || !packageScript.includes('dist/one-click-turbo-1.0.0.vsix')) {
+    errors.push('package:vsix must output dist/one-click-turbo-1.0.0.vsix.');
   }
 
   for (const requiredFile of REQUIRED_FILES) {

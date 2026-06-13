@@ -8,7 +8,7 @@
 - Implemented safe `Turbo: Purge & Prepare for Uninstall` behavior for Turbo-owned state.
 - Added Workspace Folder scoped safe fixes and rollback metadata for multi-root workspaces.
 - Updated README, SUPPORT, Markdown report, Dashboard, and Side Bar wording for V1.0.
-- Updated VSIX packaging output to `dist/turbo-vscode-1.0.0.vsix`.
+- Updated VSIX packaging output to `dist/one-click-turbo-1.0.0.vsix`.
 
 ## 0.8.0
 

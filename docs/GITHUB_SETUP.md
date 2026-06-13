@@ -15,7 +15,7 @@ A 30-second VS Code performance health scanner: audit extensions, score your set
 Website:
 
 ```text
-https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 ```
 
 Topics:

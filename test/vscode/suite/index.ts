@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 export async function run(): Promise<void> {
-  const extension = vscode.extensions.getExtension('Evhye.turbo-vscode') ?? vscode.extensions.getExtension('evhye.turbo-vscode');
+  const extension = vscode.extensions.getExtension('Evhye.one-click-turbo') ?? vscode.extensions.getExtension('evhye.one-click-turbo');
   assert.ok(extension, 'One-Click Turbo extension should be discoverable');
 
   await extension.activate();

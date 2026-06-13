@@ -67,7 +67,7 @@ function renderReleaseBadges(): string {
 }
 
 function renderFooter(): string {
-  return '<footer class="footer-section"><p>One-Click Turbo V1.0 · <a href="https://github.com/evhye38496-svg/one-click-turbo/issues">Report Issue</a> · <a href="https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode&ssr=false#review-details">Write a Review</a></p></footer>';
+  return '<footer class="footer-section"><p>One-Click Turbo V1.0 · <a href="https://github.com/evhye38496-svg/one-click-turbo/issues">Report Issue</a> · <a href="https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo&ssr=false#review-details">Write a Review</a></p></footer>';
 }
 
 function renderEmptyState(operation?: TurboOperationSummary): string {

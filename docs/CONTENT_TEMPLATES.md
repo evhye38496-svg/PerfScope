@@ -5,7 +5,7 @@ Use these templates as starting points. Replace links before publishing.
 Marketplace:
 
 ```text
-https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 ```
 
 GitHub:
@@ -26,7 +26,7 @@ It runs a local performance health check for VS Code:
 - exports a Markdown report
 - works fully offline, with no telemetry
 
-Marketplace: https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+Marketplace: https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 GitHub: https://github.com/evhye38496-svg/one-click-turbo
 
 Feedback is welcome. This is my first open-source project.
@@ -44,7 +44,7 @@ Feedback is welcome. This is my first open-source project.
 - 支持撤销和导出 Markdown 报告
 - 完全离线，不上传数据，不遥测
 
-Marketplace：https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+Marketplace：https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 GitHub：https://github.com/evhye38496-svg/one-click-turbo
 
 欢迎试用、提 issue、给 star。
@@ -61,7 +61,7 @@ The extension scans installed extensions, activation events, workspace settings,
 
 It does not upload telemetry, read source file contents, disable extensions, or write User settings.
 
-Marketplace: https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+Marketplace: https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 GitHub: https://github.com/evhye38496-svg/one-click-turbo
 
 I am a first-time open-source maintainer, so clear feedback is very welcome.
@@ -81,7 +81,7 @@ So V1.0 is:
 - preview-before-write for workspace safe fixes
 - undoable for Turbo-written settings
 
-Marketplace: https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode
+Marketplace: https://marketplace.visualstudio.com/items?itemName=Evhye.one-click-turbo
 GitHub: https://github.com/evhye38496-svg/one-click-turbo
 ```
 
