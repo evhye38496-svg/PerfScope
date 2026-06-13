@@ -17,6 +17,7 @@ const categoryCounts = {
 
 function scanResult(): ScanResult {
   return {
+    kind: 'full-scan',
     score: 88,
     grade: 'Good',
     generatedAt: '2026-06-12T06:00:00.000Z',
@@ -88,6 +89,10 @@ test('dashboard renders V0.7 launcher command buttons and score UI', () => {
   assert.match(html, /primary-action/);
   assert.match(html, /score-meter/);
   assert.match(html, /prefers-reduced-motion/);
+  assert.match(html, /style-src 'nonce-abc'/);
+  assert.match(html, /<style nonce="abc">/);
+  assert.doesNotMatch(html, /unsafe-inline/);
+  assert.doesNotMatch(html, /style="/);
   assert.doesNotMatch(html, /setInterval/);
   assert.doesNotMatch(html, /requestAnimationFrame/);
   assert.doesNotMatch(html, /<canvas/);
@@ -113,7 +118,27 @@ test('dashboard renders launcher-style result sections', () => {
   assert.match(html, /issue-card/);
   assert.match(html, /Recent Activity/);
   assert.match(html, /Restored 1 workspace settings/);
-  assert.match(html, /style="--score: 88%"/);
+  assert.match(html, /\.score-meter-fill \{ width: 88%; \}/);
+  assert.doesNotMatch(html, /style="/);
+});
+
+test('dashboard labels quick audit as extension-only', () => {
+  const result = scanResult();
+  result.kind = 'quick-audit';
+  result.stats.extensionHostHeapMB = 0;
+  result.stats.extensionHostRssMB = 0;
+  result.stats.osFreeMemoryMB = 0;
+  result.issues = result.issues.filter((issue) => issue.source !== 'configuration');
+
+  const html = renderDashboardHtml({
+    cspSource: 'vscode-resource:',
+    nonce: 'abc',
+    result,
+    viewMode: 'audit'
+  });
+
+  assert.match(html, /Quick Audit/);
+  assert.match(html, /Workspace configuration and environment stats were not measured/);
 });
 
 test('dashboard escapes scan and manifest strings', () => {

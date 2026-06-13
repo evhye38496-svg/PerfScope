@@ -9,7 +9,8 @@ import {
   noFixesMessage,
   noReportMessage,
   purgeCompleteMessage,
-  rollbackCompleteMessage
+  rollbackCompleteMessage,
+  auditCompleteMessage
 } from '../../src/ui/notification-messages';
 
 test('notification summaries are concise and stable', () => {
@@ -50,6 +51,51 @@ test('notification summaries are concise and stable', () => {
   assert.equal(noReportMessage(), 'Turbo: Run a scan before exporting a Markdown report.');
   assert.equal(noFixesMessage(), 'Turbo: No workspace safe fixes are available.');
   assert.equal(noChangeLogMessage(), 'Turbo: No workspace fix Change Log found.');
+  assert.equal(
+    auditCompleteMessage({
+      kind: 'quick-audit',
+      score: 100,
+      grade: 'Excellent',
+      generatedAt: '2026-06-12T06:30:00.000Z',
+      stats: {
+        totalExtensions: 3,
+        activeExtensions: 1,
+        alwaysOnExtensions: 0,
+        startupFinishedExtensions: 0,
+        knownHeavyExtensions: 1,
+        alternativeSuggestions: 0,
+        redundancyHints: 0,
+        extensionHostHeapMB: 0,
+        extensionHostRssMB: 0,
+        osFreeMemoryMB: 0
+      },
+      breakdown: {
+        startup: 100,
+        configuration: 100,
+        extensionInventory: 100,
+        environment: 100
+      },
+      issues: [],
+      audit: {
+        items: [],
+        categoryCounts: {
+          'theme-icon': 0,
+          'lint-format': 0,
+          'language-support': 0,
+          'ai-completion': 0,
+          'git-version-control': 0,
+          snippets: 0,
+          'utility-productivity': 0,
+          'build-task-debug': 0,
+          unknown: 0
+        },
+        knownHeavyCount: 1,
+        alternativeCount: 0,
+        redundancyHints: []
+      }
+    }),
+    'Turbo audit complete - 0 extensions, 1 guidance matches. Workspace configuration and environment stats were not measured.'
+  );
 });
 
 test('notification error message includes action and error detail', () => {

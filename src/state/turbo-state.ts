@@ -43,7 +43,7 @@ export class TurboState implements vscode.Disposable {
         status: 'success',
         message:
           kind === 'audit'
-            ? `${result.audit.items.length} extensions audited; ${result.audit.knownHeavyCount} guidance matches.`
+            ? `${result.audit.items.length} extensions audited; ${result.audit.knownHeavyCount} guidance matches. Workspace configuration and environment stats were not measured.`
             : `Score ${result.score}; ${result.issues.length} issues found.`,
         timestamp: result.generatedAt
       }

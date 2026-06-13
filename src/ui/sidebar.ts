@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import type { TurboUiState } from '../state/turbo-state';
+import { createCspNonce } from '../utils/csp-nonce';
 import { resolveDashboardCommand } from './dashboard-messages';
 import { renderSidebarHtml } from './sidebar-renderer';
 import { executeTurboCommand } from './turbo-command-dispatch';
@@ -43,20 +44,9 @@ export class TurboSidebarProvider implements vscode.WebviewViewProvider {
 
     this.view.webview.html = renderSidebarHtml({
       cspSource: this.view.webview.cspSource,
-      nonce: createNonce(),
+      nonce: createCspNonce(),
       result: this.state.lastResult,
       operation: this.state.lastOperation
     });
   }
-}
-
-function createNonce(): string {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let text = '';
-
-  for (let i = 0; i < 32; i += 1) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return text;
 }

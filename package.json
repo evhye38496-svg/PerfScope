@@ -1,7 +1,7 @@
 {
   "name": "turbo-vscode",
   "displayName": "One-Click Turbo",
-  "description": "VS Code performance health scanner and optimization guide.",
+  "description": "VS Code performance health scanner and optimization guide - analyze extensions, find slowdown causes, and apply safe workspace fixes with one click.",
   "version": "1.0.0",
   "publisher": "Evhye",
   "license": "MIT",
@@ -21,7 +21,18 @@
     "dashboard",
     "workspace",
     "extensions",
-    "audit"
+    "audit",
+    "speed",
+    "startup",
+    "health check",
+    "score",
+    "monitor",
+    "clean",
+    "boost",
+    "fast",
+    "memory",
+    "analysis",
+    "extension manager"
   ],
   "galleryBanner": {
     "color": "#1f6feb",

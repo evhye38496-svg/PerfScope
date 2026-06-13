@@ -43,6 +43,7 @@ export interface ScanStats {
 }
 
 export interface ScanResult {
+  kind: 'full-scan' | 'quick-audit';
   score: number;
   grade: 'Excellent' | 'Good' | 'Needs Attention' | 'Critical';
   generatedAt: string;

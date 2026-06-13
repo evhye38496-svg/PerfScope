@@ -17,6 +17,7 @@ const categoryCounts = {
 
 function scanResult(): ScanResult {
   return {
+    kind: 'full-scan',
     score: 76,
     grade: 'Good',
     generatedAt: '2026-06-12T06:30:00.000Z',
@@ -110,6 +111,7 @@ test('markdown report includes score, stats, issues, audit, and fix status', () 
 
   assert.match(report, /Turbo Score: 76/);
   assert.match(report, /Release: One-Click Turbo 1\.0\.0/);
+  assert.match(report, /Scan Type: Full Scan/);
   assert.match(report, /## Issues/);
   assert.match(report, /## Extension Audit/);
   assert.match(report, /Known Guidance and Alternatives/);
@@ -120,6 +122,21 @@ test('markdown report includes score, stats, issues, audit, and fix status', () 
   assert.match(report, /Workspace Folder scope/);
   assert.match(report, /file:\/\/\/repo\/app/);
   assert.match(report, /files\.watcherExclude/);
+});
+
+test('markdown report labels quick audit as extension-focused', () => {
+  const result = scanResult();
+  result.kind = 'quick-audit';
+  result.issues = result.issues.filter((issue) => issue.source !== 'configuration');
+  result.stats.extensionHostHeapMB = 0;
+  result.stats.extensionHostRssMB = 0;
+  result.stats.osFreeMemoryMB = 0;
+
+  const report = createMarkdownReport(result);
+
+  assert.match(report, /Scan Type: Quick Extension Audit/);
+  assert.match(report, /Quick Audit is extension-focused/);
+  assert.match(report, /Not measured during Quick Audit/);
 });
 
 test('markdown cells escape table separators, newlines, and html', () => {

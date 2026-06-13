@@ -19,6 +19,7 @@ export function createMarkdownReport(result: ScanResult, changeLog?: ChangeLog):
     'Release: One-Click Turbo 1.0.0',
     '',
     `Generated: ${text(result.generatedAt)}`,
+    `Scan Type: ${result.kind === 'quick-audit' ? 'Quick Extension Audit' : 'Full Scan'}`,
     '',
     '## Summary',
     '',
@@ -29,6 +30,9 @@ export function createMarkdownReport(result: ScanResult, changeLog?: ChangeLog):
     `- Active Extensions: ${result.stats.activeExtensions}`,
     '',
     '## Score Breakdown',
+    result.kind === 'quick-audit'
+      ? 'Quick Audit is extension-focused. Workspace configuration and environment stats were not measured for this report.'
+      : '',
     '',
     '| Area | Score |',
     '| --- | ---: |',
@@ -38,6 +42,9 @@ export function createMarkdownReport(result: ScanResult, changeLog?: ChangeLog):
     `| Environment | ${result.breakdown.environment} |`,
     '',
     '## Environment Stats',
+    result.kind === 'quick-audit'
+      ? 'Not measured during Quick Audit. Run Full Scan for configuration and environment details.'
+      : '',
     '',
     '| Metric | Value |',
     '| --- | ---: |',

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { runScan } from '../engine/scan-engine';
+import { runQuickAudit, runScan } from '../engine/scan-engine';
 import type { ScanResult } from '../types';
 import { TurboDashboard } from '../ui/dashboard';
 import { TurboNotifier } from '../ui/notifications';
@@ -51,7 +51,7 @@ export async function quickAuditCommand(deps: ScanCommandDependencies): Promise<
         cancellable: false
       },
       async () => {
-        const result = await runScan();
+        const result = await runQuickAudit();
         deps.setLastResult(result, 'audit');
         deps.statusBar.updateScore(result.score, result.grade, result.generatedAt);
         deps.dashboard.update(result, 'audit');

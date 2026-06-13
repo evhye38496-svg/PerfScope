@@ -115,6 +115,27 @@ function createRedundancyIssues(audit: ExtensionAudit): Issue[] {
   }));
 }
 
+function createExtensionAuditIssues(extensions: readonly ExtensionSnapshot[], audit: ExtensionAudit): Issue[] {
+  return [
+    ...createActivationIssues(extensions),
+    ...createKnowledgeBaseIssues(audit),
+    ...createAlternativeIssues(audit),
+    ...createRedundancyIssues(audit)
+  ];
+}
+
+function createExtensionStats(extensions: readonly ExtensionSnapshot[], audit: ExtensionAudit): Omit<ScanStats, 'extensionHostHeapMB' | 'extensionHostRssMB' | 'osFreeMemoryMB'> {
+  return {
+    totalExtensions: extensions.length,
+    activeExtensions: extensions.filter((extension) => extension.isActive).length,
+    alwaysOnExtensions: extensions.filter((extension) => hasAlwaysOnActivation(extension.activationEvents)).length,
+    startupFinishedExtensions: extensions.filter((extension) => hasStartupFinishedActivation(extension.activationEvents)).length,
+    knownHeavyExtensions: audit.knownHeavyCount,
+    alternativeSuggestions: audit.alternativeCount,
+    redundancyHints: audit.redundancyHints.length
+  };
+}
+
 export async function runScan(): Promise<ScanResult> {
   const extensionSnapshot = snapshotExtensions();
   const extensions = extensionSnapshot.extensions;
@@ -122,22 +143,13 @@ export async function runScan(): Promise<ScanResult> {
   const config = snapshotConfiguration();
   const memory = process.memoryUsage();
   const issues = sortIssues([
-    ...createActivationIssues(extensions),
-    ...createKnowledgeBaseIssues(audit),
-    ...createAlternativeIssues(audit),
-    ...createRedundancyIssues(audit),
+    ...createExtensionAuditIssues(extensions, audit),
     ...analyzeConfiguration(config),
     ...extensionSnapshot.issues
   ]);
 
   const stats: ScanStats = {
-    totalExtensions: extensions.length,
-    activeExtensions: extensions.filter((extension) => extension.isActive).length,
-    alwaysOnExtensions: extensions.filter((extension) => hasAlwaysOnActivation(extension.activationEvents)).length,
-    startupFinishedExtensions: extensions.filter((extension) => hasStartupFinishedActivation(extension.activationEvents)).length,
-    knownHeavyExtensions: audit.knownHeavyCount,
-    alternativeSuggestions: audit.alternativeCount,
-    redundancyHints: audit.redundancyHints.length,
+    ...createExtensionStats(extensions, audit),
     extensionHostHeapMB: toMB(memory.heapUsed),
     extensionHostRssMB: toMB(memory.rss),
     osFreeMemoryMB: toMB(os.freemem())
@@ -147,6 +159,38 @@ export async function runScan(): Promise<ScanResult> {
   const score = calculateTurboScore(breakdown);
 
   return {
+    kind: 'full-scan',
+    score,
+    grade: gradeScore(score),
+    generatedAt: new Date().toISOString(),
+    stats,
+    breakdown,
+    issues,
+    audit
+  };
+}
+
+export async function runQuickAudit(): Promise<ScanResult> {
+  const extensionSnapshot = snapshotExtensions();
+  const extensions = extensionSnapshot.extensions;
+  const audit = auditExtensions(extensions);
+  const issues = sortIssues([
+    ...createExtensionAuditIssues(extensions, audit),
+    ...extensionSnapshot.issues
+  ]);
+
+  const stats: ScanStats = {
+    ...createExtensionStats(extensions, audit),
+    extensionHostHeapMB: 0,
+    extensionHostRssMB: 0,
+    osFreeMemoryMB: 0
+  };
+
+  const breakdown = calculateBreakdown(stats, issues);
+  const score = calculateTurboScore(breakdown);
+
+  return {
+    kind: 'quick-audit',
     score,
     grade: gradeScore(score),
     generatedAt: new Date().toISOString(),

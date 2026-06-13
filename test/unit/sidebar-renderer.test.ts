@@ -17,6 +17,7 @@ const categoryCounts = {
 
 function scanResult(): ScanResult {
   return {
+    kind: 'full-scan',
     score: 91,
     grade: 'Excellent',
     generatedAt: '<script>alert(1)</script>',
@@ -75,6 +76,10 @@ test('sidebar empty state includes compact actions', () => {
   assert.match(html, /primary-action/);
   assert.match(html, /score-meter/);
   assert.match(html, /prefers-reduced-motion/);
+  assert.match(html, /style-src 'nonce-abc'/);
+  assert.match(html, /<style nonce="abc">/);
+  assert.doesNotMatch(html, /unsafe-inline/);
+  assert.doesNotMatch(html, /style="/);
   assert.doesNotMatch(html, /setInterval/);
   assert.doesNotMatch(html, /requestAnimationFrame/);
   assert.doesNotMatch(html, /<canvas/);
@@ -97,9 +102,24 @@ test('sidebar summary shows score and escapes scan strings', () => {
   assert.match(html, /Issues/);
   assert.match(html, /Extensions/);
   assert.match(html, /12/);
-  assert.match(html, /style="--score: 91%"/);
+  assert.match(html, /\.score-meter-fill \{ width: 91%; \}/);
+  assert.doesNotMatch(html, /style="/);
   assert.match(html, /Recent Activity/);
   assert.match(html, /No workspace settings were written/);
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
+});
+
+test('sidebar labels quick audit as extension-only', () => {
+  const result = scanResult();
+  result.kind = 'quick-audit';
+
+  const html = renderSidebarHtml({
+    cspSource: 'vscode-resource:',
+    nonce: 'abc',
+    result
+  });
+
+  assert.match(html, /Extension audit only/);
+  assert.match(html, /Workspace configuration and environment stats were not measured/);
 });

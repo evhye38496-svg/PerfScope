@@ -31,9 +31,12 @@ export function renderDashboardHtml(params: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' ${params.cspSource}; script-src 'nonce-${params.nonce}' ${params.cspSource}; img-src ${params.cspSource} data:; font-src ${params.cspSource}; connect-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${params.nonce}' ${params.cspSource}; script-src 'nonce-${params.nonce}' ${params.cspSource}; img-src ${params.cspSource} data:; font-src ${params.cspSource}; connect-src 'none';">
   <title>One-Click Turbo</title>
-  <style>${renderWebviewStyles('dashboard')}</style>
+  <style nonce="${params.nonce}">
+    ${renderWebviewStyles('dashboard')}
+    .score-meter-fill { width: ${params.result ? clampScore(params.result.score) : 0}%; }
+  </style>
 </head>
 <body>
   <main>${content}</main>
@@ -71,7 +74,7 @@ function renderEmptyState(operation?: TurboOperationSummary): string {
       <h1>One-Click Turbo</h1>
       <p>Run a scan to build your VS Code performance report.</p>
       ${renderReleaseBadges()}
-      <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: 0%"></div></div>
+      <div class="score-meter" aria-hidden="true"><div class="score-meter-fill"></div></div>
     </section>
     <section class="card score-hero">
       <span class="eyebrow">Launcher</span>
@@ -98,7 +101,7 @@ function renderResult(result: ScanResult, viewMode: DashboardViewMode, operation
         <strong class="score-value">${result.score}</strong>
         <span class="score-grade">${escapeHtml(result.grade)}</span>
       </div>
-      <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: ${clampScore(result.score)}%"></div></div>
+      <div class="score-meter" aria-hidden="true"><div class="score-meter-fill"></div></div>
       <p>Last scan: ${escapeHtml(result.generatedAt)}</p>
       ${renderReleaseBadges()}
     </section>
@@ -109,7 +112,7 @@ function renderResult(result: ScanResult, viewMode: DashboardViewMode, operation
     </section>
   </header>
   <section class="section-grid">
-    <article class="panel-card"><h2>Scan</h2><p>${result.issues.length} issues found across ${result.stats.totalExtensions} extensions.</p></article>
+    <article class="panel-card"><h2>${result.kind === 'quick-audit' ? 'Quick Audit' : 'Scan'}</h2><p>${renderScanSummary(result)}</p></article>
     <article class="panel-card"><h2>Audit</h2><p>${result.audit.items.length} extensions, ${result.audit.knownHeavyCount} guidance matches, ${result.audit.redundancyHints.length} overlap hints.</p></article>
     <article class="panel-card"><h2>Fix</h2><p>Workspace safe fixes remain preview-first and undoable through the last Change Log.</p></article>
   </section>
@@ -121,6 +124,14 @@ function renderResult(result: ScanResult, viewMode: DashboardViewMode, operation
   ${renderIssues(result)}
   ${viewMode === 'scan' ? audit : ''}
 </section>`;
+}
+
+function renderScanSummary(result: ScanResult): string {
+  if (result.kind === 'quick-audit') {
+    return `${result.issues.length} audit issues found across ${result.stats.totalExtensions} extensions. Workspace configuration and environment stats were not measured.`;
+  }
+
+  return `${result.issues.length} issues found across ${result.stats.totalExtensions} extensions.`;
 }
 
 function renderOperation(operation?: TurboOperationSummary): string {

@@ -1,6 +1,23 @@
-# One-Click Turbo
+# ⚡ One-Click Turbo
 
-One-Click Turbo is an offline VS Code performance health scanner and optimization guide.
+**One-click health check for your VS Code performance.** Scan → Score → Fix, all in under 30 seconds.
+
+[![Marketplace](https://img.shields.io/badge/Marketplace-v1.0-blue)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
+[![Installs](https://img.shields.io/badge/installs-xxx-green)](https://marketplace.visualstudio.com/items?itemName=Evhye.turbo-vscode)
+
+## Why Do You Need It?
+
+After installing too many VS Code extensions, startup can slow down, saving can stutter, and search can feel sluggish.
+Most of the time, you do not even know which extension or setting is dragging things down.
+
+Turbo helps you:
+
+- 🧪 **Scan in one click** across extension inventory, activation events, workspace settings, and memory hints
+- 📊 **Turbo Score** from 0 to 100 at a glance
+- 🔧 **Fix safely in one click** with preview-first workspace settings changes
+- ↩️ **Undo every fix** written by Turbo
+- 📄 **Export Markdown reports** for team sharing
+- 🔒 **Stay fully offline** with no data uploads
 
 ## V1.0
 

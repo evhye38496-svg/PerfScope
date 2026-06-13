@@ -14,10 +14,11 @@ export function renderSidebarHtml(params: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' ${params.cspSource}; script-src 'nonce-${params.nonce}' ${params.cspSource}; img-src ${params.cspSource} data:; font-src ${params.cspSource}; connect-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${params.nonce}' ${params.cspSource}; script-src 'nonce-${params.nonce}' ${params.cspSource}; img-src ${params.cspSource} data:; font-src ${params.cspSource}; connect-src 'none';">
   <title>One-Click Turbo</title>
-  <style>
+  <style nonce="${params.nonce}">
     ${renderWebviewStyles('sidebar')}
+    .score-meter-fill { width: ${params.result ? clampScore(params.result.score) : 0}%; }
     .sidebar-actions { display: grid; gap: 7px; }
     .sidebar-actions .action-button { width: 100%; justify-content: flex-start; }
     .sidebar-metrics { display: grid; gap: 6px; }
@@ -69,7 +70,7 @@ function renderEmptyState(): string {
   <strong class="score-value">Turbo</strong>
   <p>Run a scan to light up your performance console.</p>
   ${renderReleaseBadges()}
-  <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: 0%"></div></div>
+  <div class="score-meter" aria-hidden="true"><div class="score-meter-fill"></div></div>
 </section>`;
 }
 
@@ -80,9 +81,10 @@ function renderSummary(result: ScanResult): string {
     <strong class="score-value">${result.score}</strong>
     <span class="score-grade">${escapeHtml(result.grade)}</span>
   </div>
-  <div class="score-meter" aria-hidden="true"><div class="score-meter-fill" style="--score: ${clampScore(result.score)}%"></div></div>
+  <div class="score-meter" aria-hidden="true"><div class="score-meter-fill"></div></div>
   <p>Last scan: ${escapeHtml(result.generatedAt)}</p>
   ${renderReleaseBadges()}
+  ${result.kind === 'quick-audit' ? '<p>Extension audit only. Workspace configuration and environment stats were not measured.</p>' : ''}
 </section>
 <section class="card panel-card sidebar-metrics">
   <div class="sidebar-metric"><span>Issues</span><strong>${result.issues.length}</strong></div>

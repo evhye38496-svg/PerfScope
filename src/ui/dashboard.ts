@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { ScanResult } from '../types';
 import type { TurboUiState } from '../state/turbo-state';
+import { createCspNonce } from '../utils/csp-nonce';
 import { resolveDashboardCommand } from './dashboard-messages';
 import { renderDashboardHtml, type DashboardViewMode } from './dashboard-renderer';
 import { executeTurboCommand } from './turbo-command-dispatch';
@@ -70,21 +71,10 @@ export class TurboDashboard {
 
     this.panel.webview.html = renderDashboardHtml({
       cspSource: this.panel.webview.cspSource,
-      nonce: createNonce(),
+      nonce: createCspNonce(),
       result: this.lastResult,
       operation: this.lastState.lastOperation,
       viewMode: this.viewMode
     });
   }
-}
-
-function createNonce(): string {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let text = '';
-
-  for (let i = 0; i < 32; i += 1) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return text;
 }

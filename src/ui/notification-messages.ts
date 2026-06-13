@@ -5,7 +5,7 @@ export function scanCompleteMessage(result: ScanResult): string {
 }
 
 export function auditCompleteMessage(result: ScanResult): string {
-  return `Turbo audit complete - ${result.audit.items.length} extensions, ${result.audit.knownHeavyCount} guidance matches.`;
+  return `Turbo audit complete - ${result.audit.items.length} extensions, ${result.audit.knownHeavyCount} guidance matches. Workspace configuration and environment stats were not measured.`;
 }
 
 export function fixCompleteMessage(result: ApplyFixResult): string {
